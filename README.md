@@ -275,6 +275,12 @@ docker run -p 8000:8000 forecaster-ai-backend
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## 📋 **Project Planning & Roadmap**
+
+- **[🚀 ROADMAP.md](ROADMAP.md)** - Comprehensive development roadmap with 8 phases
+- **[📝 TODO.md](TODO.md)** - Quick reference for immediate tasks and priorities
+- **[📚 SETUP.md](SETUP.md)** - Detailed setup and installation guide
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
