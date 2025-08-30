@@ -1,9 +1,60 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Star, Zap } from "lucide-react";
+import { Check, Crown, Star, Zap, Loader2, AlertCircle } from "lucide-react";
 
 export default function Billing() {
+  const [currentUsage, setCurrentUsage] = useState({
+    apiCalls: 0,
+    apiLimit: 1000,
+    mlPredictions: 0,
+    mlLimit: 5,
+    dataExports: 0,
+    dataLimit: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Simulate fetching usage data
+  useEffect(() => {
+    const fetchUsageData = async () => {
+      setLoading(true);
+      try {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Mock data - in real app this would come from backend
+        setCurrentUsage({
+          apiCalls: Math.floor(Math.random() * 800) + 200, // Random between 200-1000
+          apiLimit: 1000,
+          mlPredictions: Math.floor(Math.random() * 3) + 1, // Random between 1-3
+          mlLimit: 5,
+          dataExports: 0,
+          dataLimit: 0
+        });
+      } catch (error) {
+        console.error('Failed to fetch usage data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsageData();
+  }, []);
+
+  const getUsagePercentage = (current: number, limit: number) => {
+    return Math.min((current / limit) * 100, 100);
+  };
+
+  const getUsageColor = (current: number, limit: number) => {
+    const percentage = getUsagePercentage(current, limit);
+    if (percentage >= 90) return "bg-red-500";
+    if (percentage >= 75) return "bg-yellow-500";
+    return "bg-blue-500";
+  };
+
   const plans = [
     {
       name: "Free",
@@ -54,14 +105,7 @@ export default function Billing() {
     }
   ];
 
-  const currentUsage = {
-    apiCalls: 450,
-    apiLimit: 1000,
-    mlPredictions: 2,
-    mlLimit: 5,
-    dataExports: 0,
-    dataLimit: 0
-  };
+
 
   const billingHistory = [
     {
@@ -137,16 +181,31 @@ export default function Billing() {
             <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentUsage.apiCalls.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              of {currentUsage.apiLimit.toLocaleString()} daily limit
-            </p>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full" 
-                style={{ width: `${(currentUsage.apiCalls / currentUsage.apiLimit) * 100}%` }}
-              ></div>
-            </div>
+            {loading ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{currentUsage.apiCalls.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  of {currentUsage.apiLimit.toLocaleString()} daily limit
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-300 ${getUsageColor(currentUsage.apiCalls, currentUsage.apiLimit)}`}
+                    style={{ width: `${getUsagePercentage(currentUsage.apiCalls, currentUsage.apiLimit)}%` }}
+                  ></div>
+                </div>
+                {getUsagePercentage(currentUsage.apiCalls, currentUsage.apiLimit) >= 90 && (
+                  <div className="flex items-center space-x-1 mt-2 text-xs text-red-600">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>Near limit</span>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -156,16 +215,25 @@ export default function Billing() {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentUsage.mlPredictions}</div>
-            <p className="text-xs text-muted-foreground">
-              of {currentUsage.mlLimit} daily limit
-            </p>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div 
-                className="bg-green-600 h-2 rounded-full" 
-                style={{ width: `${(currentUsage.mlPredictions / currentUsage.mlLimit) * 100}%` }}
-              ></div>
-            </div>
+            {loading ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{currentUsage.mlPredictions}</div>
+                <p className="text-xs text-muted-foreground">
+                  of {currentUsage.mlLimit} daily limit
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-300 ${getUsageColor(currentUsage.mlPredictions, currentUsage.mlLimit)}`}
+                    style={{ width: `${getUsagePercentage(currentUsage.mlPredictions, currentUsage.mlLimit)}%` }}
+                  ></div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -175,13 +243,22 @@ export default function Billing() {
             <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentUsage.dataExports}</div>
-            <p className="text-xs text-muted-foreground">
-              {currentUsage.dataLimit === 0 ? 'Not available' : `of ${currentUsage.dataLimit} monthly limit`}
-            </p>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div className="bg-gray-400 h-2 rounded-full w-0"></div>
-            </div>
+            {loading ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{currentUsage.dataExports}</div>
+                <p className="text-xs text-muted-foreground">
+                  {currentUsage.dataLimit === 0 ? 'Not available' : `of ${currentUsage.dataLimit} monthly limit`}
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div className="bg-gray-400 h-2 rounded-full w-0"></div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

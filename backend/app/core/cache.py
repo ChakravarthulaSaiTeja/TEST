@@ -11,17 +11,19 @@ redis_client = None
 
 
 def init_redis():
-    """Initialize Redis connection if available"""
+    """Initialize Upstash Redis connection if available"""
     global redis_client
 
     try:
         redis_client = redis.from_url(
             settings.redis_url, encoding="utf-8", decode_responses=True
         )
-        logger.info("Redis connection established successfully")
+        logger.info("Upstash Redis connection established successfully")
         return True
     except Exception as e:
-        logger.warning(f"Redis connection failed: {e}. Continuing without Redis.")
+        logger.warning(
+            f"Upstash Redis connection failed: {e}. Continuing without Redis."
+        )
         redis_client = None
         return False
 

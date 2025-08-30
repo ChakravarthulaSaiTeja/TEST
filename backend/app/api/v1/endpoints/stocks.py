@@ -32,7 +32,7 @@ async def get_stock_data(symbol: str) -> StockData:
         stock_info = await market_data_service.get_stock_info(symbol)
 
         # Cache the data
-        await cache_manager.set(cache_key, stock_info.dict(), expire=60)
+        await cache_manager.set(cache_key, stock_info, expire=60)
 
         return stock_info
 
@@ -76,7 +76,7 @@ async def get_stock_analysis(symbol: str) -> StockAnalysis:
         )
 
         # Cache the analysis
-        await cache_manager.set(cache_key, analysis.dict(), expire=300)
+        await cache_manager.set(cache_key, analysis.model_dump(), expire=300)
 
         return analysis
 
@@ -98,7 +98,7 @@ async def get_stock_history(
         "1d",
         description="Data interval: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo",
     ),
-) -> Dict[str, Any]:
+) -> List[Dict[str, Any]]:
     """Get historical stock data"""
     try:
         # Try to get from cache first
@@ -140,7 +140,7 @@ async def get_technical_indicators(symbol: str) -> TechnicalIndicators:
         indicators = await technical_analysis_service.calculate_indicators(symbol)
 
         # Cache the indicators
-        await cache_manager.set(cache_key, indicators.dict(), expire=300)
+        await cache_manager.set(cache_key, indicators.model_dump(), expire=300)
 
         return indicators
 

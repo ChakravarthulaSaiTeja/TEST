@@ -17,7 +17,7 @@ class Settings(BaseSettings):
         "https://yourdomain.com",
     ]
 
-    # Database
+    # Database (Neon.tech PostgreSQL)
     DATABASE_URL: Optional[str] = None
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
@@ -25,7 +25,10 @@ class Settings(BaseSettings):
     DB_USER: str = "postgres"
     DB_PASSWORD: str = "password"
 
-    # Redis
+    # Fallback SQLite for development/testing
+    SQLITE_DATABASE_URL: str = "sqlite:///./test.db"
+
+    # Redis (Upstash)
     REDIS_URL: Optional[str] = None
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
