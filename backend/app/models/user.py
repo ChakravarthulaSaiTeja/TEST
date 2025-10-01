@@ -33,6 +33,30 @@ class User(Base):
     risk_tolerance = Column(String(20), default="medium")  # low, medium, high
     investment_horizon = Column(String(20), default="medium")  # short, medium, long
 
+    # Membership fields
+    membership_type = Column(
+        String(20), default="free"
+    )  # free, premium, pro, enterprise
+    membership_start_date = Column(DateTime(timezone=True), nullable=True)
+    membership_end_date = Column(DateTime(timezone=True), nullable=True)
+    subscription_id = Column(String(255), nullable=True)  # External subscription ID
+    payment_method = Column(String(50), nullable=True)  # credit_card, paypal, etc.
+    billing_cycle = Column(String(20), default="monthly")  # monthly, yearly, lifetime
+    auto_renew = Column(Boolean, default=True)
+
+    # Usage limits and features
+    api_calls_limit = Column(Integer, default=100)  # Daily API calls limit
+    portfolio_limit = Column(Integer, default=1)  # Number of portfolios allowed
+    watchlist_limit = Column(Integer, default=3)  # Number of watchlists allowed
+    prediction_limit = Column(Integer, default=10)  # Daily predictions limit
+
+    # Feature flags
+    has_advanced_charts = Column(Boolean, default=False)
+    has_real_time_data = Column(Boolean, default=False)
+    has_ai_predictions = Column(Boolean, default=False)
+    has_portfolio_analytics = Column(Boolean, default=False)
+    has_custom_alerts = Column(Boolean, default=False)
+
     # Relationships
     portfolios = relationship(
         "Portfolio", back_populates="user", cascade="all, delete-orphan"

@@ -15,13 +15,13 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Search, Bell, Settings, User, LogOut, Brain, CreditCard } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { data: session } = useSession();
 
   const handleLogout = () => {
-    logout();
+    signOut({ callbackUrl: "/" });
   };
 
   return (
@@ -75,9 +75,9 @@ export default function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="/avatars/01.png" alt={user?.firstName || "User"} />
+                  <AvatarImage src={session?.user?.image || "/avatars/01.png"} alt={session?.user?.name || "User"} />
                   <AvatarFallback>
-                    {user ? `${user.firstName?.[0]}${user.lastName?.[0]}` : "U"}
+                    {session?.user?.name ? session.user.name.split(' ').map(n => n[0]).join('').toUpperCase() : "U"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -86,10 +86,10 @@ export default function Header() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user ? `${user.firstName} ${user.lastName}` : "Guest User"}
+                    {session?.user?.name || "Guest User"}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email || "guest@example.com"}
+                    {session?.user?.email || "guest@example.com"}
                   </p>
                 </div>
               </DropdownMenuLabel>

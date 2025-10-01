@@ -8,12 +8,16 @@ from app.api.v1.endpoints import (
     news,
     crypto,
     forex,
+    membership,
+    oauth,
 )
 
 api_router = APIRouter()
 
 # Include all endpoint routers
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
+api_router.include_router(oauth.router, prefix="/oauth", tags=["oauth"])
+api_router.include_router(membership.router, prefix="/membership", tags=["membership"])
 api_router.include_router(stocks.router, prefix="/stocks", tags=["stocks"])
 api_router.include_router(
     predictions.router, prefix="/predictions", tags=["predictions"]

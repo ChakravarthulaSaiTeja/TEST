@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, TrendingUp, MessageSquare, Globe, Database, CreditCard, Settings, Home, Bell } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { BarChart3, TrendingUp, MessageSquare, Globe, Database, CreditCard, Settings, Home } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { data: session } = useSession();
 
   const navigation = [
     {
@@ -118,15 +118,15 @@ export default function Sidebar() {
         <div className="flex items-center space-x-3">
           <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
             <span className="text-sm font-medium text-white">
-              {user ? `${user.firstName?.[0]}${user.lastName?.[0]}` : "U"}
+              {session?.user?.name ? session.user.name.split(' ').map(n => n[0]).join('').toUpperCase() : "U"}
             </span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              {user ? `${user.firstName} ${user.lastName}` : "Guest User"}
+              {session?.user?.name || "Guest User"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {user?.plan || "Free"} Plan
+              Free Plan
             </p>
           </div>
           <Link href="/dashboard/settings">

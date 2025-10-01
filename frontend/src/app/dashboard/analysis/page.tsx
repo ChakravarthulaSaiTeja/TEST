@@ -48,7 +48,7 @@ export default function StockAnalysis() {
 
   useEffect(() => {
     fetchStockData(symbol);
-  }, []);
+  }, [symbol]);
 
   const handleAnalyze = () => {
     if (symbol.trim()) {

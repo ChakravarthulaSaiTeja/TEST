@@ -12,6 +12,7 @@ import {
   Legend,
   Filler,
   TimeScale,
+  TooltipItem,
 } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import { Line } from "react-chartjs-2";
@@ -33,16 +34,16 @@ ChartJS.register(
 );
 
 // Debounce helper for zoom events
-const debounce = (fn: Function, delay = 600) => {
-  let timer: any;
-  return (...args: any) => {
+const debounce = <T extends unknown[]>(fn: (...args: T) => void, delay = 600) => {
+  let timer: NodeJS.Timeout;
+  return (...args: T) => {
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), delay);
   };
 };
 
 export default function ZoomableChart() {
-  const chartRef = useRef<any>(null);
+  const chartRef = useRef<ChartJS<'line'> | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isZooming, setIsZooming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +102,7 @@ export default function ZoomableChart() {
   );
 
   // Debounced zoom handler
-  const handleZoomComplete = debounce(({ chart }: { chart: any }) => {
+  const handleZoomComplete = debounce(({ chart }: { chart: ChartJS<'line'> }) => {
     const zoom = chart.getZoomLevel();
     setZoomLevel(zoom);
     setIsZooming(false);
@@ -140,15 +141,15 @@ export default function ZoomableChart() {
         borderWidth: 1,
         cornerRadius: 8,
         callbacks: {
-          title: (ctx: any) => `Date: ${ctx[0]?.label}`,
-          label: (ctx: any) => `Price: $${ctx.parsed.y.toFixed(2)}`,
+          title: (ctx: TooltipItem<'line'>[]) => `Date: ${ctx[0]?.label}`,
+          label: (ctx: TooltipItem<'line'>) => `Price: $${ctx.parsed.y.toFixed(2)}`,
         },
       },
       zoom: {
         pan: { 
           enabled: true, 
           mode: "x" as const,
-          modifierKey: 'ctrl',
+          modifierKey: 'ctrl' as const,
         },
         zoom: {
           wheel: { 
@@ -166,14 +167,14 @@ export default function ZoomableChart() {
             borderWidth: 1,
           },
         },
-        onZoom: ({ chart }: { chart: any }) => {
+        onZoom: ({ chart }: { chart: ChartJS<'line'> }) => {
           const zoom = chart.getZoomLevel();
           setZoomLevel(zoom);
           setIsZooming(true);
           console.log(`Zooming: level ${zoom}`);
         },
         onZoomComplete: handleZoomComplete,
-        onPan: ({ chart }: { chart: any }) => {
+        onPan: () => {
           console.log('Panning chart');
         },
       },
@@ -201,7 +202,7 @@ export default function ZoomableChart() {
         },
         ticks: {
           color: "#9ca3af",
-          callback: (val: any) => `$${val.toFixed(2)}`,
+          callback: (val: string | number) => `$${Number(val).toFixed(2)}`,
         },
         border: {
           color: 'rgba(156, 163, 175, 0.2)',

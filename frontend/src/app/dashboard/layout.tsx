@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "next-auth/react";
 import Header from "@/components/trading/Header";
 import Sidebar from "@/components/trading/Sidebar";
 
@@ -11,17 +11,17 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (status === "unauthenticated") {
       router.push("/auth/signin");
     }
-  }, [loading, isAuthenticated, router]);
+  }, [status, router]);
 
   // Show loading state while checking authentication
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -33,7 +33,7 @@ export default function DashboardLayout({
   }
 
   // Redirect if not authenticated
-  if (!isAuthenticated) {
+  if (!session) {
     return null;
   }
 

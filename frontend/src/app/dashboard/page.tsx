@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,11 +9,66 @@ import {
   DollarSign, 
   BarChart3, 
   Activity,
-  Brain
+  Brain,
+  MessageCircle,
+  Wallet
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+interface Position {
+  symbol: string;
+  qty: number;
+  avgPrice: number;
+  marketValue: number;
+  unrealizedPnL: number;
+}
+
+interface Balance {
+  cash: number;
+  buyingPower: number;
+  totalValue: number;
+  currency: string;
+}
 
 export default function Dashboard() {
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [balance, setBalance] = useState<Balance | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPortfolioData();
+  }, []);
+
+  const fetchPortfolioData = async () => {
+    try {
+      // Fetch positions and balance from MCP client
+      const [positionsRes, balanceRes] = await Promise.all([
+        fetch('/api/tools/broker/positions'),
+        fetch('/api/tools/broker/balance'),
+      ]);
+
+      if (positionsRes.ok) {
+        const positionsData = await positionsRes.json();
+        setPositions(positionsData.positions || []);
+      }
+
+      if (balanceRes.ok) {
+        const balanceData = await balanceRes.json();
+        setBalance(balanceData.balance || null);
+      }
+    } catch (error) {
+      console.error('Error fetching portfolio data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalPortfolioValue = balance?.totalValue || 125000;
+  const totalUnrealizedPnL = positions.reduce((sum, pos) => sum + pos.unrealizedPnL, 0);
+  const todayChange = totalUnrealizedPnL * 0.1; // Simulated daily change
+
   return (
     <div className="space-y-6">
       {/* Header with Theme Toggle */}
@@ -23,6 +80,12 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex items-center space-x-3">
+          <Link href="/chat">
+            <Button className="flex items-center space-x-2">
+              <MessageCircle className="h-4 w-4" />
+              <span>Chat with AI Trader</span>
+            </Button>
+          </Link>
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
             <span>Theme:</span>
             <ThemeToggle />
@@ -38,9 +101,17 @@ export default function Dashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$125,000</div>
+            <div className="text-2xl font-bold">
+              ${totalPortfolioValue.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+$2,500</span> from last month
+              {balance ? (
+                <span className={balance.totalValue > 100000 ? "text-green-600" : "text-red-600"}>
+                  {balance.totalValue > 100000 ? "+" : ""}${(balance.totalValue - 100000).toLocaleString()}
+                </span>
+              ) : (
+                <span className="text-green-600">+$2,500</span>
+              )} from initial
             </p>
           </CardContent>
         </Card>
@@ -51,9 +122,11 @@ export default function Dashboard() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">+$1,250</div>
+            <div className={`text-2xl font-bold ${todayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {todayChange >= 0 ? '+' : ''}${todayChange.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
-              +1.2% from yesterday
+              {((todayChange / totalPortfolioValue) * 100).toFixed(2)}% from yesterday
             </p>
           </CardContent>
         </Card>
@@ -64,9 +137,9 @@ export default function Dashboard() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
+            <div className="text-2xl font-bold">{positions.length}</div>
             <p className="text-xs text-muted-foreground">
-              18 profitable, 6 at loss
+              {positions.filter(p => p.unrealizedPnL > 0).length} profitable, {positions.filter(p => p.unrealizedPnL < 0).length} at loss
             </p>
           </CardContent>
         </Card>
@@ -85,28 +158,81 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* Portfolio Positions */}
+      {positions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Wallet className="h-5 w-5" />
+              <span>Portfolio Positions</span>
+            </CardTitle>
+            <CardDescription>
+              Your current stock positions and performance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">Symbol</th>
+                    <th className="text-right p-2">Quantity</th>
+                    <th className="text-right p-2">Avg Price</th>
+                    <th className="text-right p-2">Market Value</th>
+                    <th className="text-right p-2">Unrealized P&L</th>
+                    <th className="text-right p-2">% Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {positions.map((position, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="p-2 font-medium">{position.symbol}</td>
+                      <td className="p-2 text-right">{position.qty}</td>
+                      <td className="p-2 text-right">${position.avgPrice.toFixed(2)}</td>
+                      <td className="p-2 text-right">${position.marketValue.toFixed(2)}</td>
+                      <td className={`p-2 text-right ${position.unrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        ${position.unrealizedPnL.toFixed(2)}
+                      </td>
+                      <td className={`p-2 text-right ${position.unrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {((position.unrealizedPnL / (position.avgPrice * position.qty)) * 100).toFixed(2)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>AI Trading Assistant</CardTitle>
             <CardDescription>
-              Common tasks and shortcuts
+              Chat with Forecaster AI for analysis and trading
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start" variant="outline">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              Add New Position
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Run Analysis
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <Brain className="mr-2 h-4 w-4" />
-              Get AI Prediction
-            </Button>
+            <Link href="/chat">
+              <Button className="w-full justify-start">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Chat with AI Trader
+              </Button>
+            </Link>
+            <Link href="/chat?mode=trade">
+              <Button className="w-full justify-start" variant="outline">
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Place Trade Order
+              </Button>
+            </Link>
+            <Link href="/chat?mode=analysis">
+              <Button className="w-full justify-start" variant="outline">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Get Stock Analysis
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 
