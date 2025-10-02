@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Header from "@/components/trading/Header";
 import Sidebar from "@/components/trading/Sidebar";
+import ResizableChat from "@/components/ResizableChat";
+import "@/app/styles/resizable-chat.css";
 
 export default function DashboardLayout({
   children,
@@ -46,6 +48,7 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
+      <ResizableChat />
     </div>
   );
 }

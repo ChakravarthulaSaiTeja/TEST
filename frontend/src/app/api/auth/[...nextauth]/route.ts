@@ -24,9 +24,10 @@ const handler = NextAuth({
           return null
         }
 
-        // For now, we'll use a simple hardcoded check
-        // In production, you'd validate against your database
+        // SECURITY WARNING: Remove hardcoded credentials in production
+        // This is only for development/testing purposes
         if (credentials.email === "test@example.com" && credentials.password === "password") {
+          console.warn("⚠️  Using hardcoded test credentials - NOT FOR PRODUCTION!");
           return {
             id: "1",
             email: credentials.email,

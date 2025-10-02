@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     DB_PORT: int = 5432
     DB_NAME: str = "trading_platform"
     DB_USER: str = "postgres"
-    DB_PASSWORD: str = "password"
+    DB_PASSWORD: str = "change-me-in-production"
 
     # Fallback SQLite for development/testing
     SQLITE_DATABASE_URL: str = "sqlite:///./test.db"
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: Optional[str] = None
 
     # JWT
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    SECRET_KEY: str = "CHANGE-THIS-SECRET-KEY-IN-PRODUCTION-TO-A-LONG-RANDOM-STRING"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
