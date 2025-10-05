@@ -22,6 +22,7 @@ interface StockData {
   changePercent: number;
   previousClose: number;
   change: number;
+  lastUpdated?: string;
 }
 
 export default function StockAnalysis() {
@@ -29,6 +30,8 @@ export default function StockAnalysis() {
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
   const fetchStockData = async (stockSymbol: string) => {
     setLoading(true);
@@ -51,6 +54,7 @@ export default function StockAnalysis() {
       
       const data = await response.json();
       setStockData(data);
+      setLastRefresh(new Date());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch stock data');
       setStockData(null);
@@ -62,6 +66,17 @@ export default function StockAnalysis() {
   useEffect(() => {
     fetchStockData(symbol);
   }, [symbol]);
+
+  // Auto-refresh every 30 seconds when enabled
+  useEffect(() => {
+    if (!autoRefresh || !stockData) return;
+
+    const interval = setInterval(() => {
+      fetchStockData(symbol);
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [autoRefresh, symbol, stockData]);
 
   const handleAnalyze = () => {
     if (symbol.trim()) {
@@ -132,6 +147,15 @@ export default function StockAnalysis() {
               <TrendingUp className="mr-2 h-4 w-4" />
               Refresh
             </Button>
+            <Button 
+              variant={autoRefresh ? "default" : "outline"}
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              disabled={loading}
+              title="Auto-refresh every 30 seconds"
+            >
+              <Activity className="mr-2 h-4 w-4" />
+              {autoRefresh ? 'Auto-Refresh ON' : 'Auto-Refresh OFF'}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -157,6 +181,11 @@ export default function StockAnalysis() {
                 <div>
                   <h3 className="text-lg font-semibold text-blue-900">Live Price Updates</h3>
                   <p className="text-sm text-blue-700">Real-time data from market sources</p>
+                  {lastRefresh && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      Last updated: {lastRefresh.toLocaleTimeString()}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="text-right">

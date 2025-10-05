@@ -379,14 +379,38 @@ async function searchStockData(query: string): Promise<StockSearchResult | null>
 
 async function fetchStockData(symbol: string) {
   try {
-    // Use a mock data approach for demonstration
-    // In production, you would use a real API like Alpha Vantage, Yahoo Finance, etc.
+    // Call the backend StockDataService for real-time data
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    const response = await fetch(`${backendUrl}/api/v1/stocks/${symbol}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`Backend API error: ${response.status} ${response.statusText}`);
+      return null;
+    }
+
+    const data = await response.json();
     
+    // Transform backend data to frontend format
+    return {
+      name: data.name,
+      price: data.current_price,
+      previousClose: data.current_price - data.change,
+      change: data.change,
+      changePercent: data.change_percent,
+      volume: data.volume,
+      marketCap: data.market_cap,
+      peRatio: data.pe_ratio,
+    };
+  } catch (error) {
+    console.error('Error fetching stock data from backend:', error);
+    // Fallback to mock data if backend is unavailable
     const mockData = generateMockStockData(symbol);
     return mockData;
-  } catch (error) {
-    console.error('Error fetching stock data:', error);
-    return null;
   }
 }
 
