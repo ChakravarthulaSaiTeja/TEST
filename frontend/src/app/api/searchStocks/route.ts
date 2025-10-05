@@ -136,14 +136,12 @@ async function fetchStockData(symbol: string) {
 
     if (!response.ok) {
       console.error(`Backend API error: ${response.status} ${response.statusText}`);
-      // Fallback to mock data if backend is unavailable
-      const mockData = generateMockStockData(symbol);
-      return mockData;
+      return null; // Return null instead of mock data
     }
 
     const data = await response.json();
     
-    // Check if we got valid data (not mock data)
+    // Check if we got valid real data
     if (data.current_price && data.current_price > 0) {
       // Transform backend data to frontend format
       return {
@@ -157,97 +155,17 @@ async function fetchStockData(symbol: string) {
         peRatio: data.pe_ratio,
       };
     } else {
-      // If backend returned invalid data, use mock data
-      const mockData = generateMockStockData(symbol);
-      return mockData;
+      // If backend returned invalid data, return null
+      console.error('Backend returned invalid data:', data);
+      return null;
     }
   } catch (error) {
     console.error('Error fetching stock data from backend:', error);
-    // Fallback to mock data if backend is unavailable
-    const mockData = generateMockStockData(symbol);
-    return mockData;
+    return null; // Return null instead of mock data
   }
 }
 
-function generateMockStockData(symbol: string) {
-  const isIndianStock = symbol.includes('.NS') || symbol.includes('.BO');
-  const basePrice = isIndianStock ? 
-    Math.random() * 5000 + 100 : // Indian stocks: 100-5100
-    Math.random() * 500 + 10;    // US stocks: 10-510
-
-  const changePercent = (Math.random() - 0.5) * 10; // -5% to +5%
-  const change = basePrice * (changePercent / 100);
-  const previousClose = basePrice - change;
-
-  return {
-    name: getCompanyName(symbol),
-    price: basePrice,
-    previousClose: previousClose,
-    change: change,
-    changePercent: changePercent,
-    volume: Math.floor(Math.random() * 10000000) + 1000000,
-    marketCap: Math.floor(basePrice * (Math.random() * 1000000000 + 1000000000)),
-    peRatio: Math.random() * 50 + 5,
-  };
-}
-
-function getCompanyName(symbol: string): string {
-  const companyNames: { [key: string]: string } = {
-    'TCS.NS': 'Tata Consultancy Services Ltd',
-    'RELIANCE.NS': 'Reliance Industries Ltd',
-    'INFY.NS': 'Infosys Ltd',
-    'WIPRO.NS': 'Wipro Ltd',
-    'HDFCBANK.NS': 'HDFC Bank Ltd',
-    'ICICIBANK.NS': 'ICICI Bank Ltd',
-    'SBIN.NS': 'State Bank of India',
-    'BAJFINANCE.NS': 'Bajaj Finance Ltd',
-    'TATAMOTORS.NS': 'Tata Motors Ltd',
-    'M&M.NS': 'Mahindra & Mahindra Ltd',
-    'ITC.NS': 'ITC Ltd',
-    'HINDALCO.NS': 'Hindalco Industries Ltd',
-    'COALINDIA.NS': 'Coal India Ltd',
-    'BHARTIARTL.NS': 'Bharti Airtel Ltd',
-    'ASIANPAINT.NS': 'Asian Paints Ltd',
-    'MARUTI.NS': 'Maruti Suzuki India Ltd',
-    'HEROMOTOCO.NS': 'Hero MotoCorp Ltd',
-    'BAJAJ-AUTO.NS': 'Bajaj Auto Ltd',
-    'ULTRACEMCO.NS': 'UltraTech Cement Ltd',
-    'NESTLEIND.NS': 'Nestle India Ltd',
-    'HINDUNILVR.NS': 'Hindustan Unilever Ltd',
-    'CIPLA.NS': 'Cipla Ltd',
-    'SUNPHARMA.NS': 'Sun Pharmaceutical Industries Ltd',
-    'DRREDDY.NS': 'Dr. Reddy\'s Laboratories Ltd',
-    'DIVISLAB.NS': 'Divi\'s Laboratories Ltd',
-    'CADILAHC.NS': 'Cadila Healthcare Ltd',
-    'LUPIN.NS': 'Lupin Ltd',
-    'AXISBANK.NS': 'Axis Bank Ltd',
-    'KOTAKBANK.NS': 'Kotak Mahindra Bank Ltd',
-    'YESBANK.NS': 'Yes Bank Ltd',
-    'PNB.NS': 'Punjab National Bank',
-    'UNIONBANK.NS': 'Union Bank of India',
-    'CANBK.NS': 'Canara Bank',
-    'BANKBARODA.NS': 'Bank of Baroda',
-    'AAPL': 'Apple Inc.',
-    'MSFT': 'Microsoft Corporation',
-    'GOOGL': 'Alphabet Inc.',
-    'AMZN': 'Amazon.com Inc.',
-    'TSLA': 'Tesla Inc.',
-    'META': 'Meta Platforms Inc.',
-    'NFLX': 'Netflix Inc.',
-    'NVDA': 'NVIDIA Corporation',
-    'UBER': 'Uber Technologies Inc.',
-    'LYFT': 'Lyft Inc.',
-    'SPOT': 'Spotify Technology S.A.',
-    'ZM': 'Zoom Video Communications Inc.',
-    'SHOP': 'Shopify Inc.',
-    'PYPL': 'PayPal Holdings Inc.',
-    'SQ': 'Block Inc.',
-    'TWTR': 'Twitter Inc.',
-    'SNAP': 'Snap Inc.',
-  };
-
-  return companyNames[symbol] || `${symbol} Corporation`;
-}
+// Mock data functions removed - now using only real data from backend
 
 function formatCurrency(value: number, currency: string): string {
   if (currency === 'INR') {
