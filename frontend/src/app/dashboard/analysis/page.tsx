@@ -12,14 +12,16 @@ import StockChart from "@/components/charts/StockChart";
 interface StockData {
   symbol: string;
   name: string;
-  current_price: number;
-  previous_close: number;
-  change: number;
-  change_percent: number;
+  exchange: string;
+  currency: string;
+  price: number;
+  priceFormatted: string;
+  marketCap: number;
   volume: number;
-  market_cap: number;
-  pe_ratio: number;
-  dividend_yield: number;
+  peRatio: number;
+  changePercent: number;
+  previousClose: number;
+  change: number;
 }
 
 export default function StockAnalysis() {
@@ -32,10 +34,21 @@ export default function StockAnalysis() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/stocks/${stockSymbol}`);
+      const response = await fetch('/api/searchStocks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: stockSymbol }),
+      });
+      
       if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Company not found');
+        }
         throw new Error(`Failed to fetch data: ${response.statusText}`);
       }
+      
       const data = await response.json();
       setStockData(data);
     } catch (err) {
@@ -56,13 +69,22 @@ export default function StockAnalysis() {
     }
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
+  const formatCurrency = (value: number, currency: string = 'USD') => {
+    if (currency === 'INR') {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+    } else {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+    }
   };
 
   const formatNumber = (value: number) => {
@@ -86,9 +108,9 @@ export default function StockAnalysis() {
           <div className="flex space-x-4">
             <div className="flex-1">
               <Input
-                placeholder="Enter stock symbol (e.g., AAPL, TSLA, GOOGL)"
+                placeholder="Enter company name or ticker (e.g., Apple, TCS, AAPL, Tesla)"
                 value={symbol}
-                onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                onChange={(e) => setSymbol(e.target.value)}
                 className="bg-background border-input"
                 onKeyPress={(e) => e.key === 'Enter' && handleAnalyze()}
               />
@@ -139,22 +161,12 @@ export default function StockAnalysis() {
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-blue-900">
-                  {new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }).format(stockData.current_price)}
+                  {stockData.priceFormatted}
                 </div>
                 <div className={`text-sm font-medium ${
                   stockData.change >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  {stockData.change >= 0 ? '+' : ''}{new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }).format(stockData.change)} ({stockData.change_percent.toFixed(2)}%)
+                  {stockData.change >= 0 ? '+' : ''}{formatCurrency(stockData.change, stockData.currency)} ({stockData.changePercent.toFixed(2)}%)
                 </div>
               </div>
             </div>
@@ -171,10 +183,10 @@ export default function StockAnalysis() {
               <DollarSign className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(stockData.current_price)}</div>
+              <div className="text-2xl font-bold">{formatCurrency(stockData.price, stockData.currency)}</div>
               <p className={`text-xs flex items-center ${stockData.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 <TrendingUp className={`h-3 w-3 mr-1 ${stockData.change < 0 ? 'rotate-180' : ''}`} />
-                {stockData.change >= 0 ? '+' : ''}{formatCurrency(stockData.change)} ({stockData.change_percent.toFixed(2)}%)
+                {stockData.change >= 0 ? '+' : ''}{formatCurrency(stockData.change, stockData.currency)} ({stockData.changePercent.toFixed(2)}%)
               </p>
             </CardContent>
           </Card>
@@ -185,7 +197,7 @@ export default function StockAnalysis() {
               <BarChart3 className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(stockData.market_cap)}</div>
+              <div className="text-2xl font-bold">{formatNumber(stockData.marketCap)}</div>
               <p className="text-xs text-muted-foreground">{stockData.name}</p>
             </CardContent>
           </Card>
@@ -207,7 +219,7 @@ export default function StockAnalysis() {
               <TrendingUp className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stockData.pe_ratio?.toFixed(2) || 'N/A'}</div>
+              <div className="text-2xl font-bold">{stockData.peRatio?.toFixed(2) || 'N/A'}</div>
               <p className="text-xs text-muted-foreground">Trailing P/E</p>
             </CardContent>
           </Card>
@@ -289,7 +301,7 @@ export default function StockAnalysis() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">P/E Ratio</span>
-                        <span className="text-sm font-medium">{stockData.pe_ratio?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-sm font-medium">{stockData.peRatio?.toFixed(2) || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">P/B Ratio</span>
