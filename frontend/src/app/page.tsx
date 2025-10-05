@@ -120,12 +120,12 @@ export default function Home() {
                   </div>
                   <div className="flex items-center justify-between">
                     <code className="text-lg font-mono bg-white dark:bg-gray-800 px-3 py-2 rounded border">
-                      demo@forecaster.ai
+                      test@example.com
                     </code>
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => navigator.clipboard.writeText('demo@forecaster.ai')}
+                      onClick={() => navigator.clipboard.writeText('test@example.com')}
                       className="ml-2"
                     >
                       <Copy className="h-4 w-4" />
@@ -140,12 +140,12 @@ export default function Home() {
                   </div>
                   <div className="flex items-center justify-between">
                     <code className="text-lg font-mono bg-white dark:bg-gray-800 px-3 py-2 rounded border">
-                      Demo123!
+                      password
                     </code>
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => navigator.clipboard.writeText('Demo123!')}
+                      onClick={() => navigator.clipboard.writeText('password')}
                       className="ml-2"
                     >
                       <Copy className="h-4 w-4" />
