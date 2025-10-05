@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   // Enable static export for Netlify
@@ -20,6 +21,15 @@ const nextConfig: NextConfig = {
   // Disable TypeScript errors during build
   typescript: {
     ignoreBuildErrors: true,
+  },
+  
+  // Webpack configuration for better module resolution
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+    };
+    return config;
   },
   
   // Configure asset prefix if needed for CDN
