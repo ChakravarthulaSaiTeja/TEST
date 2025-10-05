@@ -5,6 +5,8 @@ import json
 import logging
 import asyncio
 from datetime import datetime
+from app.services.stock_data_service import StockDataService
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -24,104 +26,60 @@ CHAT_RESPONSES = {
 
 
 def get_detailed_stock_analysis(stock_symbol: str = "TCS") -> str:
-    """Generate detailed stock analysis with current data"""
-    import random
-    from datetime import datetime, timedelta
+    """Generate detailed stock analysis with real-time data"""
+    try:
+        # Initialize stock data service
+        stock_service = StockDataService(settings.ALPHA_VANTAGE_API_KEY)
+        
+        # Get real stock data
+        stock_data = stock_service.get_stock_data(stock_symbol)
+        
+        # Check if we got an error
+        if "error" in stock_data:
+            return f"❌ {stock_data['error']}"
+        
+        # Format the analysis with real data
+        currency_symbol = stock_data.get("currency", "₹")
+        if currency_symbol == "USD":
+            currency_symbol = "$"
+        elif currency_symbol == "INR":
+            currency_symbol = "₹"
+        
+        analysis = f"""{stock_data['symbol']} STOCK ANALYSIS
 
-    # Stock-specific data
-    stock_data = {
-        "tcs": {
-            "name": "Tata Consultancy Services",
-            "price_range": (3200, 3800),
-            "currency": "₹",
-            "news": [
-                "TCS reports strong Q3 earnings with 12% YoY growth",
-                "Company announces new digital transformation partnerships",
-                "TCS expands operations in European markets",
-                "Strong demand for cloud services drives revenue growth",
-                "Company maintains positive outlook for FY2024",
-            ],
-        },
-        "reliance": {
-            "name": "Reliance Industries",
-            "price_range": (2400, 2800),
-            "currency": "₹",
-            "news": [
-                "Reliance Jio reports strong subscriber growth",
-                "Company announces new renewable energy investments",
-                "Reliance Retail expands e-commerce operations",
-                "Strong petrochemical margins drive profitability",
-                "Company maintains leadership in telecom sector",
-            ],
-        },
-        "aapl": {
-            "name": "Apple Inc.",
-            "price_range": (180, 220),
-            "currency": "$",
-            "news": [
-                "Apple reports record iPhone sales in Q4",
-                "Company announces new AI features for iOS",
-                "Apple expands services revenue significantly",
-                "Strong demand for MacBook Pro drives growth",
-                "Company maintains premium market positioning",
-            ],
-        },
-    }
-
-    stock_info = stock_data.get(stock_symbol.lower(), stock_data["tcs"])
-
-    # Simulate current market data
-    current_price = round(random.uniform(*stock_info["price_range"]), 2)
-    change = round(random.uniform(-current_price * 0.05, current_price * 0.05), 2)
-    change_percent = round((change / current_price) * 100, 2)
-
-    # Generate technical indicators
-    rsi = round(random.uniform(30, 70), 1)
-    macd_signal = "Bullish" if random.random() > 0.5 else "Bearish"
-    moving_avg_trend = "Above" if random.random() > 0.5 else "Below"
-
-    # Generate market sentiment
-    sentiment_score = round(random.uniform(0.3, 0.8), 2)
-    sentiment = (
-        "Bullish"
-        if sentiment_score > 0.6
-        else "Bearish"
-        if sentiment_score < 0.4
-        else "Neutral"
-    )
-
-    # Generate price targets
-    target_high = round(current_price * random.uniform(1.05, 1.15), 2)
-    target_low = round(current_price * random.uniform(0.85, 0.95), 2)
-
-    analysis = f"""TCS STOCK ANALYSIS
-
-CURRENT PRICE: ₹{current_price:,}
-CHANGE: ₹{change:+,} ({change_percent:+.2f}%)
+CURRENT PRICE: {currency_symbol}{stock_data['current_price']:,}
+CHANGE: {currency_symbol}{stock_data['change']:+,} ({stock_data['change_percent']:+.2f}%)
 
 TECHNICAL INDICATORS:
-- RSI: {rsi} ({"Oversold" if rsi < 30 else "Overbought" if rsi > 70 else "Neutral"})
-- MACD: {macd_signal}
-- Moving Average: {moving_avg_trend}
+- RSI: {stock_data['rsi']} ({"Oversold" if stock_data['rsi'] < 30 else "Overbought" if stock_data['rsi'] > 70 else "Neutral"})
+- MACD: {stock_data['macd_signal']}
+- Moving Average: {stock_data['moving_avg_trend']}
 
 PRICE TARGETS:
-- Resistance: ₹{target_high:,}
-- Support: ₹{target_low:,}
+- Resistance: {currency_symbol}{stock_data['resistance']:,}
+- Support: {currency_symbol}{stock_data['support']:,}
 
 RECENT NEWS:
-- {stock_info["news"][0]}
-- {stock_info["news"][1]}
-- {stock_info["news"][2]}
+- {stock_data['news'][0] if stock_data['news'] else 'No recent news available'}
+- {stock_data['news'][1] if len(stock_data['news']) > 1 else 'Market analysis pending'}
+- {stock_data['news'][2] if len(stock_data['news']) > 2 else 'Company updates expected'}
 
-MARKET SENTIMENT: {sentiment} ({sentiment_score:.1%})
+MARKET SENTIMENT: {stock_data['sentiment']} ({stock_data['sentiment_score']:.1%})
 
-ANALYSIS: {"Strong bullish momentum" if sentiment_score > 0.6 else "Bearish pressure" if sentiment_score < 0.4 else "Mixed signals"}. Technical indicators suggest {"positive trend continuation" if macd_signal == "Bullish" else "potential correction"}.
+ANALYSIS: {"Strong bullish momentum" if stock_data['sentiment_score'] > 0.6 else "Bearish pressure" if stock_data['sentiment_score'] < 0.4 else "Mixed signals"}. Technical indicators suggest {"positive trend continuation" if stock_data['macd_signal'] == "Bullish" else "potential correction"}.
 
-RECOMMENDATION: {"Consider buying on dips" if sentiment_score > 0.6 else "Wait for better entry point" if sentiment_score < 0.4 else "Monitor for breakout"}.
+RECOMMENDATION: {"Consider buying on dips" if stock_data['sentiment_score'] > 0.6 else "Wait for better entry point" if stock_data['sentiment_score'] < 0.4 else "Monitor for breakout"}.
 
-RISK LEVEL: {"Low" if sentiment_score > 0.6 else "Medium" if sentiment_score > 0.4 else "High"}"""
+RISK LEVEL: {"Low" if stock_data['sentiment_score'] > 0.6 else "Medium" if stock_data['sentiment_score'] > 0.4 else "High"}
 
-    return analysis
+DATA SOURCE: {stock_data['data_source'].upper()}
+LAST UPDATED: {stock_data['last_updated']}"""
+
+        return analysis
+        
+    except Exception as e:
+        logger.error(f"Error in stock analysis for {stock_symbol}: {e}")
+        return f"❌ Error analyzing {stock_symbol}: {str(e)}"
 
 
 def get_chat_response(
@@ -161,54 +119,32 @@ def get_chat_response(
         else:
             return "I can help you with trading analysis! I can:\n- Analyze potential trades\n- Provide technical indicators\n- Suggest entry/exit points\n- Calculate risk metrics\n\nWhat stock are you considering?"
 
-    # Check for stock symbols
-    if any(
-        symbol in message_lower
-        for symbol in [
-            "aapl",
-            "nvda",
-            "tsla",
-            "msft",
-            "googl",
-            "amzn",
-            "meta",
-            "tcs",
-            "infy",
-            "wipro",
-            "reliance",
-            "hdfc",
-            "icici",
-            "sbi",
-            "bajaj",
-            "tata",
-            "mahindra",
-            "itc",
-            "hindalco",
-            "coal india",
-            "bharti",
-            "asian paints",
-            "maruti",
-            "hero",
-            "bajaj auto",
-            "ultracem",
-            "nestle",
-            "hul",
-            "cipla",
-            "sun pharma",
-            "dr reddy",
-            "divi's",
-            "cadila",
-            "lupin",
-            "axis bank",
-            "kotak",
-            "yes bank",
-            "pnb",
-            "union bank",
-            "canara bank",
-            "bank of baroda",
+        # Check for stock symbols (expanded list)
+        stock_symbols = [
+            # US Stocks
+            "aapl", "apple", "nvda", "nvidia", "tsla", "tesla", "msft", "microsoft",
+            "googl", "google", "amzn", "amazon", "meta", "facebook", "netflix", "nflx",
+            "uber", "lyft", "spotify", "spot", "zoom", "zm", "shopify", "shop",
+            "paypal", "pypl", "square", "sq", "twitter", "twtr", "snap", "snapchat",
+            
+            # Indian Stocks
+            "tcs", "tata consultancy", "reliance", "ril", "infy", "infosys", "wipro",
+            "hdfc", "hdfc bank", "icici", "icici bank", "sbi", "state bank", "bajaj",
+            "bajaj finance", "tata", "tata motors", "mahindra", "m&m", "itc",
+            "hindalco", "coal india", "bharti", "bharti airtel", "asian paints",
+            "maruti", "maruti suzuki", "hero", "hero motocorp", "bajaj auto",
+            "ultracem", "ultra cement", "nestle", "hul", "hindustan unilever",
+            "cipla", "sun pharma", "dr reddy", "divi's", "cadila", "lupin",
+            "axis bank", "kotak", "kotak bank", "yes bank", "pnb", "punjab national bank",
+            "union bank", "canara bank", "bank of baroda", "bob",
+            
+            # Crypto
+            "bitcoin", "btc", "ethereum", "eth", "binance", "bnb", "cardano", "ada",
+            "solana", "sol", "polkadot", "dot", "chainlink", "link", "litecoin", "ltc"
         ]
-    ):
-        return "I can help you analyze that stock! I can provide:\n- Current price and trends\n- Technical analysis\n- Price predictions\n- Market sentiment\n- Recent news\n\nWould you like me to run a detailed analysis?"
+        
+        if any(symbol in message_lower for symbol in stock_symbols):
+            return "I can help you analyze that stock! I can provide:\n- Current price and trends\n- Technical analysis\n- Price predictions\n- Market sentiment\n- Recent news\n\nWould you like me to run a detailed analysis?"
 
     # Default response
     return f"I understand you're asking about: '{message}'\n\nI'm here to help with trading and market analysis. I can assist with:\n- Stock analysis and predictions\n- Market news and insights\n- Portfolio management\n- Trading strategies\n\nCould you be more specific about what you'd like to know?"
@@ -239,19 +175,45 @@ async def chat_endpoint(request: Dict[str, Any]):
             content = message.get("content", "").lower()
             # Check for stock symbols in the conversation
             stock_symbols = [
-                "tcs",
-                "reliance",
-                "aapl",
-                "nvda",
-                "tsla",
-                "msft",
-                "googl",
-                "amzn",
-                "meta",
+                # US Stocks
+                "aapl", "apple", "nvda", "nvidia", "tsla", "tesla", "msft", "microsoft",
+                "googl", "google", "amzn", "amazon", "meta", "facebook", "netflix", "nflx",
+                "uber", "lyft", "spotify", "spot", "zoom", "zm", "shopify", "shop",
+                "paypal", "pypl", "square", "sq", "twitter", "twtr", "snap", "snapchat",
+                
+                # Indian Stocks
+                "tcs", "tata consultancy", "reliance", "ril", "infy", "infosys", "wipro",
+                "hdfc", "hdfc bank", "icici", "icici bank", "sbi", "state bank", "bajaj",
+                "bajaj finance", "tata", "tata motors", "mahindra", "m&m", "itc",
+                "hindalco", "coal india", "bharti", "bharti airtel", "asian paints",
+                "maruti", "maruti suzuki", "hero", "hero motocorp", "bajaj auto",
+                "ultracem", "ultra cement", "nestle", "hul", "hindustan unilever",
+                "cipla", "sun pharma", "dr reddy", "divi's", "cadila", "lupin",
+                "axis bank", "kotak", "kotak bank", "yes bank", "pnb", "punjab national bank",
+                "union bank", "canara bank", "bank of baroda", "bob",
+                
+                # Crypto
+                "bitcoin", "btc", "ethereum", "eth", "binance", "bnb", "cardano", "ada",
+                "solana", "sol", "polkadot", "dot", "chainlink", "link", "litecoin", "ltc"
             ]
             for symbol in stock_symbols:
-                if symbol in content and "analyze" in content:
-                    stock_symbol = symbol.upper()
+                if symbol in content and ("analyze" in content or "analysis" in content):
+                    # Map common names to ticker symbols
+                    symbol_mapping = {
+                        "apple": "AAPL", "nvidia": "NVDA", "tesla": "TSLA", "microsoft": "MSFT",
+                        "google": "GOOGL", "amazon": "AMZN", "facebook": "META", "netflix": "NFLX",
+                        "tata consultancy": "TCS", "infosys": "INFY", "hdfc bank": "HDFC",
+                        "icici bank": "ICICIBANK", "state bank": "SBIN", "bajaj finance": "BAJFINANCE",
+                        "tata motors": "TATAMOTORS", "bharti airtel": "BHARTIARTL",
+                        "maruti suzuki": "MARUTI", "hero motocorp": "HEROMOTOCO",
+                        "ultra cement": "ULTRACEMCO", "hindustan unilever": "HINDUNILVR",
+                        "sun pharma": "SUNPHARMA", "dr reddy": "DRREDDY", "divi's": "DIVISLAB",
+                        "kotak bank": "KOTAKBANK", "punjab national bank": "PNB",
+                        "bank of baroda": "BANKBARODA", "bitcoin": "BTC", "ethereum": "ETH",
+                        "binance": "BNB", "cardano": "ADA", "solana": "SOL", "polkadot": "DOT",
+                        "chainlink": "LINK", "litecoin": "LTC"
+                    }
+                    stock_symbol = symbol_mapping.get(symbol, symbol.upper())
                     break
 
         # Generate response
