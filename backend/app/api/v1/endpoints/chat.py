@@ -20,6 +20,10 @@ CHAT_RESPONSES = {
     "prediction": "I use advanced machine learning models to predict stock movements. My predictions include:\n- Short-term price targets\n- Technical analysis indicators\n- Market sentiment factors\n- Risk assessments\n\nWhich stock would you like me to analyze?",
     "news": "I can help you stay updated with the latest market news! I track:\n- Earnings reports\n- Economic indicators\n- Company announcements\n- Market-moving events\n\nWould you like me to summarize recent news for any specific stock or sector?",
     "trading": "I can assist with trading strategies! I can help you with:\n- Entry and exit points\n- Risk management\n- Position sizing\n- Technical indicators\n- Market timing\n\nWhat type of trading strategy are you interested in?",
+    "yes": "Great! Let me run a comprehensive analysis for you. I'll gather the latest data and provide detailed insights.",
+    "sure": "Perfect! I'll analyze the stock comprehensively and give you actionable insights.",
+    "ok": "Excellent! Let me pull up the detailed analysis with current market data.",
+    "go ahead": "I'll start the analysis now. This will include technical indicators, price trends, and market sentiment.",
 }
 
 
@@ -31,6 +35,11 @@ def get_chat_response(message: str, mode: str = "analysis") -> str:
     for keyword, response in CHAT_RESPONSES.items():
         if keyword in message_lower:
             return response
+
+    # Check for confirmation patterns
+    confirmation_words = ["yeah", "yes", "sure", "ok", "okay", "go ahead", "please", "do it", "run it", "analyze it"]
+    if any(word in message_lower for word in confirmation_words):
+        return "Perfect! I'll run a comprehensive analysis for you. This will include:\n- Current price and trends\n- Technical indicators (RSI, MACD, Moving Averages)\n- Price predictions and targets\n- Market sentiment analysis\n- Recent news and events\n- Risk assessment\n\nLet me gather the latest data..."
 
     # Check for trading-related queries first (before stock symbols)
     if any(
@@ -46,11 +55,47 @@ def get_chat_response(message: str, mode: str = "analysis") -> str:
     if any(
         symbol in message_lower
         for symbol in [
-            "aapl", "nvda", "tsla", "msft", "googl", "amzn", "meta", "tcs", "infy", "wipro",
-            "reliance", "hdfc", "icici", "sbi", "bajaj", "tata", "mahindra", "itc", "hindalco",
-            "coal india", "bharti", "asian paints", "maruti", "hero", "bajaj auto", "ultracem",
-            "nestle", "hul", "cipla", "sun pharma", "dr reddy", "divi's", "cadila", "lupin",
-            "axis bank", "kotak", "yes bank", "pnb", "union bank", "canara bank", "bank of baroda"
+            "aapl",
+            "nvda",
+            "tsla",
+            "msft",
+            "googl",
+            "amzn",
+            "meta",
+            "tcs",
+            "infy",
+            "wipro",
+            "reliance",
+            "hdfc",
+            "icici",
+            "sbi",
+            "bajaj",
+            "tata",
+            "mahindra",
+            "itc",
+            "hindalco",
+            "coal india",
+            "bharti",
+            "asian paints",
+            "maruti",
+            "hero",
+            "bajaj auto",
+            "ultracem",
+            "nestle",
+            "hul",
+            "cipla",
+            "sun pharma",
+            "dr reddy",
+            "divi's",
+            "cadila",
+            "lupin",
+            "axis bank",
+            "kotak",
+            "yes bank",
+            "pnb",
+            "union bank",
+            "canara bank",
+            "bank of baroda",
         ]
     ):
         return "I can help you analyze that stock! I can provide:\n- Current price and trends\n- Technical analysis\n- Price predictions\n- Market sentiment\n- Recent news\n\nWould you like me to run a detailed analysis?"
