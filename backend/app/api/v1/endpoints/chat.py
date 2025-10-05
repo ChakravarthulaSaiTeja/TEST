@@ -67,32 +67,32 @@ def get_detailed_stock_analysis(stock_symbol: str = "TCS") -> str:
             else "🟡"
         )
 
-        analysis = f"""📊 **{stock_data["symbol"]} STOCK ANALYSIS** 📊
+        analysis = f"""📊 {stock_data["symbol"]} STOCK ANALYSIS 📊
 
-💰 **CURRENT PRICE**: {currency_symbol}{stock_data["current_price"]:,} {trend_emoji}
-📈 **CHANGE**: {currency_symbol}{stock_data["change"]:+,} ({stock_data["change_percent"]:+.2f}%)
+💰 CURRENT PRICE: {currency_symbol}{stock_data["current_price"]:,} {trend_emoji}
+📈 CHANGE: {currency_symbol}{stock_data["change"]:+,} ({stock_data["change_percent"]:+.2f}%)
 
-🔍 **TECHNICAL INDICATORS**:
+🔍 TECHNICAL INDICATORS:
 • RSI: {stock_data["rsi"]} {rsi_emoji} ({"Oversold" if stock_data["rsi"] < 30 else "Overbought" if stock_data["rsi"] > 70 else "Neutral"})
 • MACD: {stock_data["macd_signal"]} {macd_emoji}
 • Moving Average: {stock_data["moving_avg_trend"]} {"📈" if stock_data["moving_avg_trend"] == "Above" else "📉"}
 
-🎯 **PRICE TARGETS**:
+🎯 PRICE TARGETS:
 • Resistance: {currency_symbol}{stock_data["resistance"]:,} 📈
 • Support: {currency_symbol}{stock_data["support"]:,} 📉
 
-📰 **RECENT NEWS**:
+📰 RECENT NEWS:
 • {stock_data["news"][0] if stock_data["news"] else "No recent news available"}
 • {stock_data["news"][1] if len(stock_data["news"]) > 1 else "Market analysis pending"}
 • {stock_data["news"][2] if len(stock_data["news"]) > 2 else "Company updates expected"}
 
-📊 **MARKET SENTIMENT**: {stock_data["sentiment"]} {sentiment_emoji} ({stock_data["sentiment_score"]:.1%})
+📊 MARKET SENTIMENT: {stock_data["sentiment"]} {sentiment_emoji} ({stock_data["sentiment_score"]:.1%})
 
-💡 **ANALYSIS**: {"Strong bullish momentum" if stock_data["sentiment_score"] > 0.6 else "Bearish pressure" if stock_data["sentiment_score"] < 0.4 else "Mixed signals"}. Technical indicators suggest {"positive trend continuation" if stock_data["macd_signal"] == "Bullish" else "potential correction"}.
+💡 ANALYSIS: {"Strong bullish momentum" if stock_data["sentiment_score"] > 0.6 else "Bearish pressure" if stock_data["sentiment_score"] < 0.4 else "Mixed signals"}. Technical indicators suggest {"positive trend continuation" if stock_data["macd_signal"] == "Bullish" else "potential correction"}.
 
-🎯 **RECOMMENDATION**: {"Consider buying on dips" if stock_data["sentiment_score"] > 0.6 else "Wait for better entry point" if stock_data["sentiment_score"] < 0.4 else "Monitor for breakout"}.
+🎯 RECOMMENDATION: {"Consider buying on dips" if stock_data["sentiment_score"] > 0.6 else "Wait for better entry point" if stock_data["sentiment_score"] < 0.4 else "Monitor for breakout"}.
 
-⚠️ **RISK LEVEL**: {"Low" if stock_data["sentiment_score"] > 0.6 else "Medium" if stock_data["sentiment_score"] > 0.4 else "High"} {"🟢" if stock_data["sentiment_score"] > 0.6 else "🟡" if stock_data["sentiment_score"] > 0.4 else "🔴"}"""
+⚠️ RISK LEVEL: {"Low" if stock_data["sentiment_score"] > 0.6 else "Medium" if stock_data["sentiment_score"] > 0.4 else "High"} {"🟢" if stock_data["sentiment_score"] > 0.6 else "🟡" if stock_data["sentiment_score"] > 0.4 else "🔴"}"""
 
         return analysis
 
