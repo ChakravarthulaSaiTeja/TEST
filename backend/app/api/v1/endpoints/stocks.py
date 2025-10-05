@@ -166,14 +166,14 @@ async def search_stocks(
 
         # Search using yfinance with multiple symbol variations
         search_results = []
-        
+
         # Try different symbol variations
         search_variations = [
             query.upper(),  # Original query
             f"{query.upper()}.NS",  # NSE (Indian stocks)
             f"{query.upper()}.BO",  # BSE (Indian stocks)
         ]
-        
+
         for symbol_variation in search_variations:
             try:
                 ticker = yf.Ticker(symbol_variation)

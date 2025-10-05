@@ -59,13 +59,27 @@ async function searchStockData(query: string): Promise<StockSearchResult | null>
   try {
     const upperQuery = query.toUpperCase().replace(/\s+/g, '');
     
-    // Try different symbol variations for comprehensive search
-    // Prioritize Indian stocks first for common Indian company names
-    const symbolVariations = [
-      `${upperQuery}.NS`,   // NSE (Indian stocks) - try first
-      `${upperQuery}.BO`,   // BSE (Indian stocks)
-      upperQuery,           // Original query (e.g., "AAPL")
-    ];
+    // Common US company mappings to prioritize US stocks
+    const usCompanies = ['APPLE', 'MICROSOFT', 'GOOGLE', 'ALPHABET', 'AMAZON', 'TESLA', 'META', 'FACEBOOK', 'NETFLIX', 'NVDA', 'NVIDIA', 'UBER', 'LYFT', 'SPOTIFY', 'ZOOM', 'SHOPIFY', 'PAYPAL', 'SQUARE', 'TWITTER', 'SNAP', 'SALESFORCE', 'ORACLE', 'INTEL', 'CISCO', 'IBM', 'ADOBE', 'NIKE', 'COCA', 'PEPSI', 'WALMART', 'TARGET', 'DISNEY', 'VERIZON', 'ATT', 'JPMORGAN', 'BANKOFAMERICA', 'WELLSFARGO', 'GOLDMANSACHS', 'MORGANSTANLEY', 'VISA', 'MASTERCARD', 'AMERICANEXPRESS', 'BERKSHIRE', 'JOHNSON', 'PFIZER', 'MODERNA', 'BOEING', 'GENERALELECTRIC', 'FORD', 'GENERALMOTORS', 'CHEVRON', 'EXXON', 'SHELL', 'BP', 'PROCTER', 'UNILEVER', 'CATERPILLAR', 'DEERE', '3M', 'HONEYWELL', 'LOCKHEED', 'RAYTHEON', 'NORTHROP', 'GENERALDYNAMICS'];
+    
+    // Determine symbol variations based on company type
+    let symbolVariations: string[];
+    
+    if (usCompanies.includes(upperQuery)) {
+      // US companies - try US first
+      symbolVariations = [
+        upperQuery,           // Original query (e.g., "TESLA")
+        `${upperQuery}.NS`,   // NSE (fallback)
+        `${upperQuery}.BO`,   // BSE (fallback)
+      ];
+    } else {
+      // Indian companies or unknown - try Indian first
+      symbolVariations = [
+        `${upperQuery}.NS`,   // NSE (Indian stocks) - try first
+        `${upperQuery}.BO`,   // BSE (Indian stocks)
+        upperQuery,           // Original query (fallback)
+      ];
+    }
 
     // Try each symbol variation until we find valid data
     for (const symbol of symbolVariations) {
