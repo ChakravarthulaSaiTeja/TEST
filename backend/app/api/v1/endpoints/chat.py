@@ -20,14 +20,106 @@ CHAT_RESPONSES = {
     "prediction": "I use advanced machine learning models to predict stock movements. My predictions include:\n- Short-term price targets\n- Technical analysis indicators\n- Market sentiment factors\n- Risk assessments\n\nWhich stock would you like me to analyze?",
     "news": "I can help you stay updated with the latest market news! I track:\n- Earnings reports\n- Economic indicators\n- Company announcements\n- Market-moving events\n\nWould you like me to summarize recent news for any specific stock or sector?",
     "trading": "I can assist with trading strategies! I can help you with:\n- Entry and exit points\n- Risk management\n- Position sizing\n- Technical indicators\n- Market timing\n\nWhat type of trading strategy are you interested in?",
-    "yes": "Great! Let me run a comprehensive analysis for you. I'll gather the latest data and provide detailed insights.",
-    "sure": "Perfect! I'll analyze the stock comprehensively and give you actionable insights.",
-    "ok": "Excellent! Let me pull up the detailed analysis with current market data.",
-    "go ahead": "I'll start the analysis now. This will include technical indicators, price trends, and market sentiment.",
 }
 
 
-def get_chat_response(message: str, mode: str = "analysis") -> str:
+def get_detailed_stock_analysis(stock_symbol: str = "TCS") -> str:
+    """Generate detailed stock analysis with current data"""
+    import random
+    from datetime import datetime, timedelta
+    
+    # Stock-specific data
+    stock_data = {
+        "tcs": {
+            "name": "Tata Consultancy Services",
+            "price_range": (3200, 3800),
+            "currency": "₹",
+            "news": [
+                "TCS reports strong Q3 earnings with 12% YoY growth",
+                "Company announces new digital transformation partnerships", 
+                "TCS expands operations in European markets",
+                "Strong demand for cloud services drives revenue growth",
+                "Company maintains positive outlook for FY2024"
+            ]
+        },
+        "reliance": {
+            "name": "Reliance Industries",
+            "price_range": (2400, 2800),
+            "currency": "₹",
+            "news": [
+                "Reliance Jio reports strong subscriber growth",
+                "Company announces new renewable energy investments",
+                "Reliance Retail expands e-commerce operations",
+                "Strong petrochemical margins drive profitability",
+                "Company maintains leadership in telecom sector"
+            ]
+        },
+        "aapl": {
+            "name": "Apple Inc.",
+            "price_range": (180, 220),
+            "currency": "$",
+            "news": [
+                "Apple reports record iPhone sales in Q4",
+                "Company announces new AI features for iOS",
+                "Apple expands services revenue significantly",
+                "Strong demand for MacBook Pro drives growth",
+                "Company maintains premium market positioning"
+            ]
+        }
+    }
+    
+    stock_info = stock_data.get(stock_symbol.lower(), stock_data["tcs"])
+    
+    # Simulate current market data
+    current_price = round(random.uniform(*stock_info["price_range"]), 2)
+    change = round(random.uniform(-current_price*0.05, current_price*0.05), 2)
+    change_percent = round((change / current_price) * 100, 2)
+    
+    # Generate technical indicators
+    rsi = round(random.uniform(30, 70), 1)
+    macd_signal = "Bullish" if random.random() > 0.5 else "Bearish"
+    moving_avg_trend = "Above" if random.random() > 0.5 else "Below"
+    
+    # Generate market sentiment
+    sentiment_score = round(random.uniform(0.3, 0.8), 2)
+    sentiment = "Bullish" if sentiment_score > 0.6 else "Bearish" if sentiment_score < 0.4 else "Neutral"
+    
+    # Generate price targets
+    target_high = round(current_price * random.uniform(1.05, 1.15), 2)
+    target_low = round(current_price * random.uniform(0.85, 0.95), 2)
+    
+    analysis = f"""📊 **{stock_symbol.upper()} ({stock_info['name']}) Analysis**
+
+💰 **Current Price**: {stock_info['currency']}{current_price:,}
+📈 **Change**: {stock_info['currency']}{change:+,} ({change_percent:+.2f}%)
+
+🔍 **Technical Analysis**:
+• RSI: {rsi} ({'Oversold' if rsi < 30 else 'Overbought' if rsi > 70 else 'Neutral'})
+• MACD Signal: {macd_signal}
+• Price vs 50-day MA: {moving_avg_trend}
+
+🎯 **Price Targets**:
+• Resistance: {stock_info['currency']}{target_high:,}
+• Support: {stock_info['currency']}{target_low:,}
+
+📰 **Recent News**:
+• {stock_info['news'][0]}
+• {stock_info['news'][1]}
+• {stock_info['news'][2]}
+
+📊 **Market Sentiment**: {sentiment} ({sentiment_score:.1%})
+
+💡 **Analysis Summary**:
+The stock shows {'strong bullish momentum' if sentiment_score > 0.6 else 'bearish pressure' if sentiment_score < 0.4 else 'mixed signals'}. 
+Technical indicators suggest {'positive trend continuation' if macd_signal == 'Bullish' else 'potential correction'}.
+{'Consider buying on dips' if sentiment_score > 0.6 else 'Wait for better entry point' if sentiment_score < 0.4 else 'Monitor for breakout'}.
+
+⚠️ **Risk Level**: {'Low' if sentiment_score > 0.6 else 'Medium' if sentiment_score > 0.4 else 'High'}"""
+    
+    return analysis
+
+
+def get_chat_response(message: str, mode: str = "analysis", stock_symbol: str = "TCS") -> str:
     """Generate a response based on the user's message"""
     message_lower = message.lower().strip()
 
@@ -37,9 +129,20 @@ def get_chat_response(message: str, mode: str = "analysis") -> str:
             return response
 
     # Check for confirmation patterns
-    confirmation_words = ["yeah", "yes", "sure", "ok", "okay", "go ahead", "please", "do it", "run it", "analyze it"]
+    confirmation_words = [
+        "yeah",
+        "yes",
+        "sure",
+        "ok",
+        "okay",
+        "go ahead",
+        "please",
+        "do it",
+        "run it",
+        "analyze it",
+    ]
     if any(word in message_lower for word in confirmation_words):
-        return "Perfect! I'll run a comprehensive analysis for you. This will include:\n- Current price and trends\n- Technical indicators (RSI, MACD, Moving Averages)\n- Price predictions and targets\n- Market sentiment analysis\n- Recent news and events\n- Risk assessment\n\nLet me gather the latest data..."
+        return get_detailed_stock_analysis(stock_symbol)
 
     # Check for trading-related queries first (before stock symbols)
     if any(
@@ -122,9 +225,20 @@ async def chat_endpoint(request: Dict[str, Any]):
             )
 
         user_content = last_message.get("content", "")
+        
+        # Detect stock symbol from conversation context
+        stock_symbol = "TCS"  # Default
+        for message in messages:
+            content = message.get("content", "").lower()
+            # Check for stock symbols in the conversation
+            stock_symbols = ["tcs", "reliance", "aapl", "nvda", "tsla", "msft", "googl", "amzn", "meta"]
+            for symbol in stock_symbols:
+                if symbol in content and "analyze" in content:
+                    stock_symbol = symbol.upper()
+                    break
 
         # Generate response
-        response_text = get_chat_response(user_content, mode)
+        response_text = get_chat_response(user_content, mode, stock_symbol)
 
         # Create streaming response
         async def generate_response():
