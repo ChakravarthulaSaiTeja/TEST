@@ -15,7 +15,10 @@ import {
   Globe, 
   Shield, 
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  User,
+  Key,
+  Copy
 } from "lucide-react";
 import Link from "next/link";
 import ZoomableChartWithVolume from "@/components/ZoomableChartWithVolume";
@@ -113,6 +116,101 @@ export default function Home() {
               <CheckCircle2 className="h-4 w-4 text-green-600" />
               <span>Cancel anytime</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Credentials Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              🚀 <span className="text-blue-600">Demo Credentials</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Use these credentials to test the platform immediately
+            </p>
+          </div>
+          
+          <div className="max-w-2xl mx-auto">
+            <Card className="bg-white dark:bg-gray-800 shadow-lg border-2 border-blue-200 dark:border-blue-800">
+              <CardHeader className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
+                    <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-blue-600 dark:text-blue-400">Test Account</CardTitle>
+                <CardDescription className="text-lg">
+                  Ready-to-use credentials for immediate access
+                </CardDescription>
+              </CardHeader>
+              
+              <div className="px-6 pb-6 space-y-4">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <code className="text-lg font-mono bg-white dark:bg-gray-800 px-3 py-2 rounded border">
+                      demo@forecaster.ai
+                    </code>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => navigator.clipboard.writeText('demo@forecaster.ai')}
+                      className="ml-2"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Key className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Password</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <code className="text-lg font-mono bg-white dark:bg-gray-800 px-3 py-2 rounded border">
+                      Demo123!
+                    </code>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => navigator.clipboard.writeText('Demo123!')}
+                      className="ml-2"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="text-sm font-medium">Active Account</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="text-sm font-medium">Free Tier</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="pt-4">
+                  <Link href="/auth/signin" className="w-full">
+                    <Button className="w-full gradient-primary hover:shadow-glow-lg transition-all duration-300 transform hover:scale-105">
+                      <User className="mr-2 h-5 w-5" />
+                      Sign In with Demo Account
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </section>
