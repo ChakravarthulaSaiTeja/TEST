@@ -32,19 +32,22 @@ def get_chat_response(message: str, mode: str = "analysis") -> str:
         if keyword in message_lower:
             return response
 
+    # Check for trading-related queries first (before stock symbols)
+    if any(
+        word in message_lower
+        for word in ["buy", "sell", "trade", "position", "trading"]
+    ):
+        if mode == "trade":
+            return "I can help you place trades! I can:\n- Analyze entry/exit points\n- Calculate position sizes\n- Assess risk levels\n- Execute trades (paper trading)\n\nWhat would you like to trade?"
+        else:
+            return "I can help you with trading analysis! I can:\n- Analyze potential trades\n- Provide technical indicators\n- Suggest entry/exit points\n- Calculate risk metrics\n\nWhat stock are you considering?"
+
     # Check for stock symbols
     if any(
         symbol in message_lower
         for symbol in ["aapl", "nvda", "tsla", "msft", "googl", "amzn", "meta"]
     ):
         return "I can help you analyze that stock! I can provide:\n- Current price and trends\n- Technical analysis\n- Price predictions\n- Market sentiment\n- Recent news\n\nWould you like me to run a detailed analysis?"
-
-    # Check for trading-related queries
-    if any(word in message_lower for word in ["buy", "sell", "trade", "position"]):
-        if mode == "trade":
-            return "I can help you place trades! I can:\n- Analyze entry/exit points\n- Calculate position sizes\n- Assess risk levels\n- Execute trades (paper trading)\n\nWhat would you like to trade?"
-        else:
-            return "I can help you with trading analysis! I can:\n- Analyze potential trades\n- Provide technical indicators\n- Suggest entry/exit points\n- Calculate risk metrics\n\nWhat stock are you considering?"
 
     # Default response
     return f"I understand you're asking about: '{message}'\n\nI'm here to help with trading and market analysis. I can assist with:\n- Stock analysis and predictions\n- Market news and insights\n- Portfolio management\n- Trading strategies\n\nCould you be more specific about what you'd like to know?"
