@@ -115,8 +115,8 @@ export default function SignInPage() {
             {/* Demo Credentials */}
             <div className="text-center text-xs text-muted-foreground bg-muted p-3 rounded-md">
               <p className="font-medium mb-1">Demo Credentials:</p>
-              <p>Email: test@example.com</p>
-              <p>Password: password</p>
+              <p>Email: demo@forecaster.ai</p>
+              <p>Password: Demo123!</p>
             </div>
           </CardContent>
         </Card>
