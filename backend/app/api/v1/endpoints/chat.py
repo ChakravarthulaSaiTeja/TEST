@@ -47,32 +47,52 @@ def get_detailed_stock_analysis(stock_symbol: str = "TCS") -> str:
         elif currency_symbol == "INR":
             currency_symbol = "₹"
 
-        analysis = f"""{stock_data["symbol"]} STOCK ANALYSIS
+        # Determine trend emoji and color indicators
+        trend_emoji = "📈" if stock_data["change"] >= 0 else "📉"
+        sentiment_emoji = (
+            "🟢"
+            if stock_data["sentiment_score"] > 0.6
+            else "🔴"
+            if stock_data["sentiment_score"] < 0.4
+            else "🟡"
+        )
+        rsi_emoji = (
+            "🔴" if stock_data["rsi"] > 70 else "🟢" if stock_data["rsi"] < 30 else "🟡"
+        )
+        macd_emoji = (
+            "🟢"
+            if stock_data["macd_signal"] == "Bullish"
+            else "🔴"
+            if stock_data["macd_signal"] == "Bearish"
+            else "🟡"
+        )
 
-CURRENT PRICE: {currency_symbol}{stock_data["current_price"]:,}
-CHANGE: {currency_symbol}{stock_data["change"]:+,} ({stock_data["change_percent"]:+.2f}%)
+        analysis = f"""📊 **{stock_data["symbol"]} STOCK ANALYSIS** 📊
 
-TECHNICAL INDICATORS:
-- RSI: {stock_data["rsi"]} ({"Oversold" if stock_data["rsi"] < 30 else "Overbought" if stock_data["rsi"] > 70 else "Neutral"})
-- MACD: {stock_data["macd_signal"]}
-- Moving Average: {stock_data["moving_avg_trend"]}
+💰 **CURRENT PRICE**: {currency_symbol}{stock_data["current_price"]:,} {trend_emoji}
+📈 **CHANGE**: {currency_symbol}{stock_data["change"]:+,} ({stock_data["change_percent"]:+.2f}%)
 
-PRICE TARGETS:
-- Resistance: {currency_symbol}{stock_data["resistance"]:,}
-- Support: {currency_symbol}{stock_data["support"]:,}
+🔍 **TECHNICAL INDICATORS**:
+• RSI: {stock_data["rsi"]} {rsi_emoji} ({"Oversold" if stock_data["rsi"] < 30 else "Overbought" if stock_data["rsi"] > 70 else "Neutral"})
+• MACD: {stock_data["macd_signal"]} {macd_emoji}
+• Moving Average: {stock_data["moving_avg_trend"]} {"📈" if stock_data["moving_avg_trend"] == "Above" else "📉"}
 
-RECENT NEWS:
-- {stock_data["news"][0] if stock_data["news"] else "No recent news available"}
-- {stock_data["news"][1] if len(stock_data["news"]) > 1 else "Market analysis pending"}
-- {stock_data["news"][2] if len(stock_data["news"]) > 2 else "Company updates expected"}
+🎯 **PRICE TARGETS**:
+• Resistance: {currency_symbol}{stock_data["resistance"]:,} 📈
+• Support: {currency_symbol}{stock_data["support"]:,} 📉
 
-MARKET SENTIMENT: {stock_data["sentiment"]} ({stock_data["sentiment_score"]:.1%})
+📰 **RECENT NEWS**:
+• {stock_data["news"][0] if stock_data["news"] else "No recent news available"}
+• {stock_data["news"][1] if len(stock_data["news"]) > 1 else "Market analysis pending"}
+• {stock_data["news"][2] if len(stock_data["news"]) > 2 else "Company updates expected"}
 
-ANALYSIS: {"Strong bullish momentum" if stock_data["sentiment_score"] > 0.6 else "Bearish pressure" if stock_data["sentiment_score"] < 0.4 else "Mixed signals"}. Technical indicators suggest {"positive trend continuation" if stock_data["macd_signal"] == "Bullish" else "potential correction"}.
+📊 **MARKET SENTIMENT**: {stock_data["sentiment"]} {sentiment_emoji} ({stock_data["sentiment_score"]:.1%})
 
-RECOMMENDATION: {"Consider buying on dips" if stock_data["sentiment_score"] > 0.6 else "Wait for better entry point" if stock_data["sentiment_score"] < 0.4 else "Monitor for breakout"}.
+💡 **ANALYSIS**: {"Strong bullish momentum" if stock_data["sentiment_score"] > 0.6 else "Bearish pressure" if stock_data["sentiment_score"] < 0.4 else "Mixed signals"}. Technical indicators suggest {"positive trend continuation" if stock_data["macd_signal"] == "Bullish" else "potential correction"}.
 
-RISK LEVEL: {"Low" if stock_data["sentiment_score"] > 0.6 else "Medium" if stock_data["sentiment_score"] > 0.4 else "High"}"""
+🎯 **RECOMMENDATION**: {"Consider buying on dips" if stock_data["sentiment_score"] > 0.6 else "Wait for better entry point" if stock_data["sentiment_score"] < 0.4 else "Monitor for breakout"}.
+
+⚠️ **RISK LEVEL**: {"Low" if stock_data["sentiment_score"] > 0.6 else "Medium" if stock_data["sentiment_score"] > 0.4 else "High"} {"🟢" if stock_data["sentiment_score"] > 0.6 else "🟡" if stock_data["sentiment_score"] > 0.4 else "🔴"}"""
 
         return analysis
 
