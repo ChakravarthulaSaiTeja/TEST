@@ -1,0 +1,418 @@
+/* Fintech Theme CSS Variables and Utilities */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Color Tokens */
+  --color-primary: #00E0A4;
+  --color-primary-hover: #00c896;
+  --color-secondary: #00C8FF;
+  --color-secondary-hover: #00a8d4;
+  --color-success: #00E676;
+  --color-danger: #FF5252;
+  --color-muted: #AAB4CF;
+  --color-muted-light: #CBD5E1;
+  --color-muted-dark: #475569;
+  
+  /* Background Gradients */
+  --bg-primary: #071226;
+  --bg-secondary: #0F1B2B;
+  --bg-gradient: linear-gradient(135deg, #071226 0%, #0F1B2B 100%);
+  
+  /* Glass Morphism */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-surface: rgba(255, 255, 255, 0.06);
+  --glass-backdrop: blur(8px);
+  
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-pill: 9999px;
+  
+  /* Shadows */
+  --shadow-glass: 0 8px 30px rgba(2, 6, 23, 0.6);
+  --shadow-glow: 0 0 24px rgba(0, 224, 164, 0.16);
+  --shadow-glow-secondary: 0 0 24px rgba(0, 200, 255, 0.16);
+  --shadow-floating: 0 20px 40px rgba(2, 6, 23, 0.4);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-focus: 0 0 0 3px rgba(0, 200, 255, 0.12);
+  
+  /* Typography */
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-display: 'Poppins', 'Inter', system-ui, sans-serif;
+  
+  /* Motion */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 300ms ease-out;
+  --transition-slow: 500ms ease-out;
+  
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
+
+/* Dark Mode Overrides */
+.dark {
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #AAB4CF;
+  --color-text-muted: #64748b;
+  --color-bg-primary: #071226;
+  --color-bg-secondary: #0F1B2B;
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background: var(--bg-gradient);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glass Morphism Utility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+  border-radius: var(--radius-xl);
+}
+
+.glass-surface {
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+}
+
+/* Glow Effects */
+.glow {
+  box-shadow: var(--shadow-glow);
+}
+
+.glow-secondary {
+  box-shadow: var(--shadow-glow-secondary);
+}
+
+.glow-focus {
+  box-shadow: var(--shadow-focus);
+}
+
+/* Text Utilities */
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-secondary {
+  color: var(--color-secondary);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-danger {
+  color: var(--color-danger);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+/* Background Utilities */
+.bg-primary-gradient {
+  background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+}
+
+.bg-secondary-gradient {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+}
+
+.bg-success-gradient {
+  background: linear-gradient(135deg, var(--color-success), #00c463);
+}
+
+.bg-danger-gradient {
+  background: linear-gradient(135deg, var(--color-danger), #e53e3e);
+}
+
+/* Currency Formatting */
+.currency-inr::before {
+  content: '₹';
+  margin-right: 0.25rem;
+}
+
+.currency-usd::before {
+  content: '$';
+  margin-right: 0.25rem;
+}
+
+.currency-eur::before {
+  content: '€';
+  margin-right: 0.25rem;
+}
+
+/* Tabular Numbers for Financial Data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Interactive States */
+.interactive {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-floating);
+}
+
+.interactive:active {
+  transform: translateY(0);
+}
+
+/* Focus States */
+.focus-ring {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.focus-ring:focus {
+  box-shadow: var(--shadow-focus);
+}
+
+/* Loading States */
+.loading-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Error States */
+.error-shake {
+  animation: shake 0.2s ease-in-out;
+}
+
+/* Success Pulse */
+.success-pulse {
+  animation: pulseGlow 0.8s ease-in-out;
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --shadow-glow: 0 0 32px rgba(0, 224, 164, 0.3);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .glass,
+  .glass-surface {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  
+  .bg-primary-gradient,
+  .bg-secondary-gradient {
+    background: #333 !important;
+    color: white !important;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--glass-bg);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Selection Styles */
+::selection {
+  background: var(--color-primary);
+  color: var(--bg-primary);
+}
+
+::-moz-selection {
+  background: var(--color-primary);
+  color: var(--bg-primary);
+}
+
+/* Form Elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+textarea,
+select {
+  font-family: var(--font-family-sans);
+  transition: all var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Button Base Styles */
+button {
+  font-family: var(--font-family-sans);
+  transition: all var(--transition-fast);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Link Styles */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+a:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-sm);
+}
+
+/* Utility Classes for Common Patterns */
+.card-hover {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-floating);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.border-gradient {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--glass-bg), var(--glass-bg)) padding-box,
+              linear-gradient(90deg, var(--color-primary), var(--color-secondary)) border-box;
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-slide-left {
+  animation: slideLeft 0.3s ease-out;
+}
+
+.animate-slide-right {
+  animation: slideRight 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 0.6s ease-in-out;
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out;
+}
