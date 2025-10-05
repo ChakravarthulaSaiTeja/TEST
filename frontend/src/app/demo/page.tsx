@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import Header from '../components/Header';
-import SearchBar from '../components/SearchBar';
-import MetricCard from '../components/MetricCard';
-import Button, { PrimaryButton, SecondaryButton, IconButton } from '../components/Button';
-import Tabs, { TabPanel, TabGroup } from '../components/Tabs';
-import Modal, { useToast } from '../components/Modal';
+import Header from '../../components/Header';
+import SearchBar from '../../components/SearchBar';
+import MetricCard from '../../components/MetricCard';
+import Button, { PrimaryButton, SecondaryButton, IconButton } from '../../components/Button';
+import Tabs, { TabPanel, TabGroup } from '../../components/Tabs';
+import Modal, { useToast, ToastContainer } from '../../components/Modal';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -61,7 +61,7 @@ const DemoPage = () => {
       value: 125430.50,
       change: 2340.25,
       changePercent: 1.89,
-      currency: 'USD',
+      currency: 'USD' as const,
       icon: <DollarSign className="h-5 w-5" />,
       sparkline: [100, 105, 102, 108, 115, 120, 118, 125, 130, 128, 132, 135]
     },
@@ -70,7 +70,7 @@ const DemoPage = () => {
       value: 2340.25,
       change: 2340.25,
       changePercent: 1.89,
-      currency: 'USD',
+      currency: 'USD' as const,
       icon: <TrendingUp className="h-5 w-5" />,
       sparkline: [0, 5, 2, 8, 15, 20, 18, 25, 30, 28, 32, 35]
     },
@@ -79,7 +79,7 @@ const DemoPage = () => {
       value: 12,
       change: 2,
       changePercent: 20,
-      format: 'number',
+      format: 'number' as const,
       icon: <Activity className="h-5 w-5" />,
       sparkline: [8, 9, 10, 11, 12, 11, 12, 13, 12, 12, 12, 12]
     },
@@ -88,7 +88,7 @@ const DemoPage = () => {
       value: 78.5,
       change: 2.3,
       changePercent: 3.02,
-      format: 'percentage',
+      format: 'percentage' as const,
       icon: <BarChart3 className="h-5 w-5" />,
       sparkline: [70, 72, 75, 76, 78, 77, 78, 79, 78, 78, 78, 78]
     }
@@ -343,7 +343,7 @@ const DemoPage = () => {
       </div>
 
       {/* Toast Container */}
-      <Modal.ToastContainer toasts={toasts} onClose={removeToast} />
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 };

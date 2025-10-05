@@ -2,25 +2,23 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  // Enable static export for Netlify
-  output: 'export',
+  // Enable dynamic features for fintech theme
+  // Removed static export to support middleware and API routes
   
-  // Disable image optimization for static export
+  // Image optimization for better performance
   images: {
-    unoptimized: true,
+    domains: ['localhost'],
+    formats: ['image/webp', 'image/avif'],
   },
   
-  // Configure trailing slash for Netlify
-  trailingSlash: true,
-  
-  // Disable ESLint during build for Netlify deployment
+  // Enable ESLint for better code quality
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   
-  // Disable TypeScript errors during build
+  // Enable TypeScript checking
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   
   // Webpack configuration for better module resolution
@@ -32,8 +30,11 @@ const nextConfig: NextConfig = {
     return config;
   },
   
-  // Configure asset prefix if needed for CDN
-  // assetPrefix: process.env.NODE_ENV === 'production' ? 'https://your-cdn-url.com' : '',
+  // Experimental features for better performance
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react'],
+  },
 };
 
 export default nextConfig;
