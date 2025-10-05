@@ -3,14 +3,20 @@ import requests
 import logging
 from typing import Dict, Optional
 from datetime import datetime
+from app.services.news_service import NewsService
 
 logger = logging.getLogger(__name__)
 
 
 class StockDataService:
-    def __init__(self, alpha_vantage_key: Optional[str] = None):
+    def __init__(
+        self,
+        alpha_vantage_key: Optional[str] = None,
+        news_api_key: Optional[str] = None,
+    ):
         self.alpha_vantage_key = alpha_vantage_key
         self.base_url = "https://www.alphavantage.co/query"
+        self.news_service = NewsService(news_api_key)
 
     def get_stock_data(self, symbol: str) -> Dict:
         """
@@ -70,8 +76,8 @@ class StockDataService:
             macd_signal = self._calculate_macd_signal(hist["Close"])
             moving_avg_trend = self._get_moving_average_trend(hist["Close"])
 
-            # Get news
-            news = self._get_news(symbol)
+            # Get news using the news service
+            news = self.news_service.get_stock_news(symbol, 3)
 
             # Determine sentiment
             sentiment_score = self._calculate_sentiment(
@@ -188,6 +194,9 @@ class StockDataService:
             resistance = current_price * 1.1
             support = current_price * 0.9
 
+            # Get news using the news service
+            news = self.news_service.get_stock_news(symbol, 3)
+
             return {
                 "symbol": symbol.upper(),
                 "name": overview_data.get("Name", symbol.upper()),
@@ -202,7 +211,7 @@ class StockDataService:
                 "moving_avg_trend": moving_avg_trend,
                 "resistance": round(resistance, 2),
                 "support": round(support, 2),
-                "news": [],  # Alpha Vantage doesn't provide news in basic plan
+                "news": news,
                 "sentiment": sentiment,
                 "sentiment_score": round(sentiment_score, 2),
                 "pe_ratio": overview_data.get("PERatio"),
@@ -307,29 +316,6 @@ class StockDataService:
                 return "Below"
         except Exception:
             return "Neutral"
-
-    def _get_news(self, symbol):
-        """
-        Get recent news for the stock
-        """
-        try:
-            ticker = yf.Ticker(self._normalize_symbol(symbol))
-            news = ticker.news
-
-            if news:
-                return [news_item.get("title", "") for news_item in news[:3]]
-            else:
-                return [
-                    f"{symbol.upper()} shows strong market performance",
-                    f"Analysts maintain positive outlook for {symbol.upper()}",
-                    f"{symbol.upper()} continues to attract investor interest",
-                ]
-        except Exception:
-            return [
-                f"{symbol.upper()} shows strong market performance",
-                f"Analysts maintain positive outlook for {symbol.upper()}",
-                f"{symbol.upper()} continues to attract investor interest",
-            ]
 
     def _calculate_sentiment(self, change_percent, rsi, macd_signal):
         """

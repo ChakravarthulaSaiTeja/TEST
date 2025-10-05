@@ -29,7 +29,9 @@ def get_detailed_stock_analysis(stock_symbol: str = "TCS") -> str:
     """Generate detailed stock analysis with real-time data"""
     try:
         # Initialize stock data service
-        stock_service = StockDataService(settings.ALPHA_VANTAGE_API_KEY)
+        stock_service = StockDataService(
+            settings.ALPHA_VANTAGE_API_KEY, settings.NEWS_API_KEY
+        )
 
         # Get real stock data
         stock_data = stock_service.get_stock_data(stock_symbol)
