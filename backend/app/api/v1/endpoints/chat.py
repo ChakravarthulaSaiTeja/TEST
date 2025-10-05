@@ -45,7 +45,13 @@ def get_chat_response(message: str, mode: str = "analysis") -> str:
     # Check for stock symbols
     if any(
         symbol in message_lower
-        for symbol in ["aapl", "nvda", "tsla", "msft", "googl", "amzn", "meta"]
+        for symbol in [
+            "aapl", "nvda", "tsla", "msft", "googl", "amzn", "meta", "tcs", "infy", "wipro",
+            "reliance", "hdfc", "icici", "sbi", "bajaj", "tata", "mahindra", "itc", "hindalco",
+            "coal india", "bharti", "asian paints", "maruti", "hero", "bajaj auto", "ultracem",
+            "nestle", "hul", "cipla", "sun pharma", "dr reddy", "divi's", "cadila", "lupin",
+            "axis bank", "kotak", "yes bank", "pnb", "union bank", "canara bank", "bank of baroda"
+        ]
     ):
         return "I can help you analyze that stock! I can provide:\n- Current price and trends\n- Technical analysis\n- Price predictions\n- Market sentiment\n- Recent news\n\nWould you like me to run a detailed analysis?"
 
