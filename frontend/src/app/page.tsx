@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,32 +18,6 @@ import Link from "next/link";
 import ZoomableChartWithVolume from "@/components/ZoomableChartWithVolume";
 
 export default function Home() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === "authenticated" && session) {
-      router.push("/dashboard");
-    }
-  }, [status, session, router]);
-
-  // Show loading state while checking authentication
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't show landing page if authenticated
-  if (session) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -63,10 +34,7 @@ export default function Home() {
               <a href="#features" className="text-foreground hover:text-muted-foreground transition-colors">Features</a>
               <a href="#pricing" className="text-foreground hover:text-muted-foreground transition-colors">Pricing</a>
               <a href="#about" className="text-foreground hover:text-muted-foreground transition-colors">About</a>
-              <Link href="/auth/signin">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-              <Link href="/auth/signup">
+              <Link href="/dashboard">
                 <Button>Get Started</Button>
               </Link>
             </div>
@@ -88,15 +56,10 @@ export default function Home() {
             Leverage advanced machine learning algorithms to predict market movements, analyze sentiment, and make data-driven trading decisions with unprecedented accuracy.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/auth/signup">
+            <Link href="/dashboard">
               <Button size="lg" className="text-lg px-8 py-6">
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/auth/signin">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                Sign In
               </Button>
             </Link>
           </div>
@@ -237,7 +200,7 @@ export default function Home() {
               placeholder="Enter your email address" 
               className="max-w-md"
             />
-            <Link href="/auth/signup">
+            <Link href="/dashboard">
               <Button size="lg" className="text-lg px-8 py-6">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -269,7 +232,6 @@ export default function Home() {
                 <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
                 <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
                 <li><Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link></li>
-                <li><Link href="/auth/signup" className="hover:text-foreground transition-colors">Sign Up</Link></li>
               </ul>
             </div>
             
