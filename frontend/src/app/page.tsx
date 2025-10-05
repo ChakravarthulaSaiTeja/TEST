@@ -22,7 +22,7 @@ import ZoomableChartWithVolume from "@/components/ZoomableChartWithVolume";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
       {/* Navigation */}
       <nav className="border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -87,11 +87,11 @@ export default function Home() {
       </section>
 
       {/* Demo Credentials Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-primary/10 dark:to-accent/10">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              🚀 <span className="text-blue-600">Demo Credentials</span>
+              🚀 <span className="text-blue-600 dark:text-primary">Demo Credentials</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Use these credentials to test the platform immediately
@@ -288,7 +288,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 dark:bg-gradient-to-r dark:from-primary/5 dark:via-accent/5 dark:to-primary/5">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
             Ready to Transform Your <span className="text-gradient">Trading</span>?
