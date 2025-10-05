@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     forex,
     membership,
     oauth,
+    chat,
 )
 
 api_router = APIRouter()
@@ -27,3 +28,4 @@ api_router.include_router(portfolio.router, prefix="/portfolio", tags=["portfoli
 api_router.include_router(news.router, prefix="/news", tags=["news"])
 api_router.include_router(crypto.router, prefix="/crypto", tags=["cryptocurrency"])
 api_router.include_router(forex.router, prefix="/forex", tags=["forex"])
+api_router.include_router(chat.router, prefix="/chat", tags=["chat"])

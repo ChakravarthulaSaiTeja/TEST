@@ -202,7 +202,7 @@ const ResizableChat: React.FC<ResizableChatProps> = ({ className = '' }) => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [position, setPosition] = useState({ x: 20, y: 100 });
   const [size, setSize] = useState({ width: 400, height: 600 });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -217,6 +217,22 @@ const ResizableChat: React.FC<ResizableChatProps> = ({ className = '' }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Position chatbot on the right side initially
+  useEffect(() => {
+    const handleResize = () => {
+      setPosition(prev => ({
+        x: Math.min(prev.x, window.innerWidth - 420),
+        y: prev.y
+      }));
+    };
+
+    // Set initial position to right side
+    setPosition({ x: window.innerWidth - 420, y: 100 });
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const quickSymbols = ['AAPL', 'NVDA', 'TSLA', 'MSFT', 'GOOGL'];
 
@@ -242,7 +258,7 @@ const ResizableChat: React.FC<ResizableChatProps> = ({ className = '' }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('http://localhost:8000/api/v1/chat/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
