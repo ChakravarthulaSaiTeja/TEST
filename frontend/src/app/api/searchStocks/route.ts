@@ -62,6 +62,32 @@ async function searchStockData(query: string): Promise<StockSearchResult | null>
     // Common US company mappings to prioritize US stocks
     const usCompanies = ['APPLE', 'MICROSOFT', 'GOOGLE', 'ALPHABET', 'AMAZON', 'TESLA', 'META', 'FACEBOOK', 'NETFLIX', 'NVDA', 'NVIDIA', 'UBER', 'LYFT', 'SPOTIFY', 'ZOOM', 'SHOPIFY', 'PAYPAL', 'SQUARE', 'TWITTER', 'SNAP', 'SALESFORCE', 'ORACLE', 'INTEL', 'CISCO', 'IBM', 'ADOBE', 'NIKE', 'COCA', 'PEPSI', 'WALMART', 'TARGET', 'DISNEY', 'VERIZON', 'ATT', 'JPMORGAN', 'BANKOFAMERICA', 'WELLSFARGO', 'GOLDMANSACHS', 'MORGANSTANLEY', 'VISA', 'MASTERCARD', 'AMERICANEXPRESS', 'BERKSHIRE', 'JOHNSON', 'PFIZER', 'MODERNA', 'BOEING', 'GENERALELECTRIC', 'FORD', 'GENERALMOTORS', 'CHEVRON', 'EXXON', 'SHELL', 'BP', 'PROCTER', 'UNILEVER', 'CATERPILLAR', 'DEERE', '3M', 'HONEYWELL', 'LOCKHEED', 'RAYTHEON', 'NORTHROP', 'GENERALDYNAMICS'];
     
+    // Common Indian company symbol mappings
+    const indianSymbolMappings: { [key: string]: string } = {
+      'INFOSYS': 'INFY',
+      'TATA': 'TATAMOTORS',
+      'MAHINDRA': 'M&M',
+      'HDFC': 'HDFCBANK',
+      'ICICI': 'ICICIBANK',
+      'SBI': 'SBIN',
+      'BAJFINANCE': 'BAJFINANCE',
+      'BHARTI': 'BHARTIARTL',
+      'ASIANPAINTS': 'ASIANPAINT',
+      'HERO': 'HEROMOTOCO',
+      'BAJAJAUTO': 'BAJAJ-AUTO',
+      'HUL': 'HINDUNILVR',
+      'SUNPHARMA': 'SUNPHARMA',
+      'DRREDDY': 'DRREDDY',
+      'DIVIS': 'DIVISLAB',
+      'CADILA': 'CADILAHC',
+      'AXISBANK': 'AXISBANK',
+      'KOTAKBANK': 'KOTAKBANK',
+      'YESBANK': 'YESBANK',
+      'UNIONBANK': 'UNIONBANK',
+      'CANARABANK': 'CANBK',
+      'BANKBARODA': 'BANKBARODA',
+    };
+    
     // Determine symbol variations based on company type
     let symbolVariations: string[];
     
@@ -73,11 +99,14 @@ async function searchStockData(query: string): Promise<StockSearchResult | null>
         `${upperQuery}.BO`,   // BSE (fallback)
       ];
     } else {
-      // Indian companies or unknown - try Indian first
+      // Indian companies or unknown - try Indian first with correct symbols
+      const correctSymbol = indianSymbolMappings[upperQuery] || upperQuery;
       symbolVariations = [
-        `${upperQuery}.NS`,   // NSE (Indian stocks) - try first
-        `${upperQuery}.BO`,   // BSE (Indian stocks)
-        upperQuery,           // Original query (fallback)
+        `${correctSymbol}.NS`,   // NSE (Indian stocks) - try first
+        `${correctSymbol}.BO`,   // BSE (Indian stocks)
+        `${upperQuery}.NS`,      // Original query with .NS
+        `${upperQuery}.BO`,      // Original query with .BO
+        upperQuery,              // Original query (fallback)
       ];
     }
 
