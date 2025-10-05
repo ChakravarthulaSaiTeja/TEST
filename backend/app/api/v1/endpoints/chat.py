@@ -72,10 +72,7 @@ ANALYSIS: {"Strong bullish momentum" if stock_data["sentiment_score"] > 0.6 else
 
 RECOMMENDATION: {"Consider buying on dips" if stock_data["sentiment_score"] > 0.6 else "Wait for better entry point" if stock_data["sentiment_score"] < 0.4 else "Monitor for breakout"}.
 
-RISK LEVEL: {"Low" if stock_data["sentiment_score"] > 0.6 else "Medium" if stock_data["sentiment_score"] > 0.4 else "High"}
-
-DATA SOURCE: {stock_data["data_source"].upper()}
-LAST UPDATED: {stock_data["last_updated"]}"""
+RISK LEVEL: {"Low" if stock_data["sentiment_score"] > 0.6 else "Medium" if stock_data["sentiment_score"] > 0.4 else "High"}"""
 
         return analysis
 
