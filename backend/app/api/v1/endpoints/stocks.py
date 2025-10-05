@@ -164,26 +164,36 @@ async def search_stocks(
         if cached_results:
             return cached_results
 
-        # Search using yfinance
+        # Search using yfinance with multiple symbol variations
         search_results = []
-        try:
-            # Use yfinance ticker search
-            ticker = yf.Ticker(query)
-            info = ticker.info
+        
+        # Try different symbol variations
+        search_variations = [
+            query.upper(),  # Original query
+            f"{query.upper()}.NS",  # NSE (Indian stocks)
+            f"{query.upper()}.BO",  # BSE (Indian stocks)
+        ]
+        
+        for symbol_variation in search_variations:
+            try:
+                ticker = yf.Ticker(symbol_variation)
+                info = ticker.info
 
-            if info and "symbol" in info:
-                search_results.append(
-                    {
-                        "symbol": info.get("symbol", ""),
-                        "name": info.get("longName", info.get("shortName", "")),
-                        "exchange": info.get("exchange", ""),
-                        "type": info.get("quoteType", ""),
-                        "market_cap": info.get("marketCap"),
-                        "current_price": info.get("currentPrice"),
-                    }
-                )
-        except Exception as e:
-            logger.warning(f"yfinance search failed for {query}: {e}")
+                if info and "symbol" in info and info.get("currentPrice"):
+                    search_results.append(
+                        {
+                            "symbol": info.get("symbol", symbol_variation),
+                            "name": info.get("longName", info.get("shortName", query)),
+                            "exchange": info.get("exchange", ""),
+                            "type": info.get("quoteType", ""),
+                            "market_cap": info.get("marketCap"),
+                            "current_price": info.get("currentPrice"),
+                        }
+                    )
+                    break  # Found a valid result, stop searching
+            except Exception as e:
+                logger.warning(f"yfinance search failed for {symbol_variation}: {e}")
+                continue
 
         # Cache the results
         await cache_manager.set(cache_key, search_results, expire=300)
