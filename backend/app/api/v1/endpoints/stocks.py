@@ -43,6 +43,85 @@ async def get_stock_data(symbol: str) -> StockData:
         )
 
 
+@router.get("/{symbol}/history")
+async def get_stock_history(
+    symbol: str,
+    period: str = Query("1mo", description="Time period: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max"),
+    interval: str = Query("1d", description="Data interval: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo")
+) -> Dict[str, Any]:
+    """Get historical stock data for charting"""
+    try:
+        # Try to get from cache first
+        cache_key = f"stock_history_{symbol.lower()}_{period}_{interval}"
+        cached_data = await cache_manager.get(cache_key)
+        
+        if cached_data:
+            return cached_data
+
+        # Fetch historical data using yfinance
+        ticker = yf.Ticker(symbol)
+        hist = ticker.history(period=period, interval=interval)
+        
+        if hist.empty:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"No historical data found for symbol {symbol}"
+            )
+
+        # Convert to chart-friendly format
+        chart_data = {
+            "symbol": symbol,
+            "period": period,
+            "interval": interval,
+            "labels": hist.index.strftime('%Y-%m-%d').tolist(),
+            "datasets": [
+                {
+                    "label": "Price",
+                    "data": hist['Close'].tolist(),
+                    "borderColor": "#3b82f6",
+                    "backgroundColor": "rgba(59, 130, 246, 0.1)",
+                    "fill": True,
+                    "tension": 0.4,
+                    "pointRadius": 0,
+                    "hoverRadius": 6,
+                    "borderWidth": 2,
+                },
+                {
+                    "label": "Volume",
+                    "data": hist['Volume'].tolist(),
+                    "borderColor": "#10b981",
+                    "backgroundColor": "rgba(16, 185, 129, 0.1)",
+                    "fill": False,
+                    "tension": 0.4,
+                    "pointRadius": 0,
+                    "hoverRadius": 6,
+                    "borderWidth": 2,
+                    "yAxisID": "y1",
+                }
+            ],
+            "metadata": {
+                "current_price": float(hist['Close'].iloc[-1]) if not hist.empty else 0,
+                "price_change": float(hist['Close'].iloc[-1] - hist['Close'].iloc[0]) if len(hist) > 1 else 0,
+                "price_change_percent": float(((hist['Close'].iloc[-1] - hist['Close'].iloc[0]) / hist['Close'].iloc[0]) * 100) if len(hist) > 1 and hist['Close'].iloc[0] != 0 else 0,
+                "volume": int(hist['Volume'].iloc[-1]) if not hist.empty else 0,
+                "high_52w": float(hist['High'].max()) if not hist.empty else 0,
+                "low_52w": float(hist['Low'].min()) if not hist.empty else 0,
+            }
+        }
+
+        # Cache the data for 5 minutes
+        await cache_manager.set(cache_key, chart_data, expire=300)
+        
+        return chart_data
+
+    except Exception as e:
+        logger.error(f"Error fetching historical data for {symbol}: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to fetch historical data: {str(e)}"
+        )
+
+
 @router.get("/{symbol}/analysis")
 async def get_stock_analysis(symbol: str) -> StockAnalysis:
     """Get comprehensive stock analysis including technical indicators"""

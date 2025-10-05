@@ -266,7 +266,7 @@ export default function StockAnalysis() {
           </TabsList>
 
                   <TabsContent value="chart" className="mt-6">
-          <StockChart symbol={symbol} />
+          <StockChart symbol={stockData.symbol} timeframe="1mo" />
         </TabsContent>
 
           <TabsContent value="technical" className="mt-6">
