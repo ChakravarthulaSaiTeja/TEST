@@ -22,23 +22,23 @@ import ZoomableChartWithVolume from "@/components/ZoomableChartWithVolume";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Navigation */}
-      <nav className="border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <nav className="border-b border-white/20 bg-white/10 backdrop-blur-xl supports-[backdrop-filter]:bg-white/5 sticky top-0 z-50 shadow-lg">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 gradient-primary rounded-xl shadow-glow">
+              <div className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 <Brain className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gradient">Forecaster AI</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Forecaster AI</span>
             </div>
-            <div className="hidden md:flex items-center space-x-6">
-              <a href="#features" className="text-foreground hover:text-primary transition-colors duration-200">Features</a>
-              <a href="#pricing" className="text-foreground hover:text-primary transition-colors duration-200">Pricing</a>
-              <a href="#about" className="text-foreground hover:text-primary transition-colors duration-200">About</a>
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-medium">Features</a>
+              <a href="#pricing" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-medium">Pricing</a>
+              <a href="#about" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-medium">About</a>
               <Link href="/dashboard">
-                <Button className="gradient-primary hover:shadow-glow transition-all duration-300">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold">
                   Get Started
                 </Button>
               </Link>
@@ -48,26 +48,30 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 gradient-hero opacity-5"></div>
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-600/10"></div>
         <div className="container mx-auto text-center relative z-10">
-          <Badge className="mb-6 gradient-primary text-white border-0 shadow-glow">
-            🚀 AI-Powered Trading Intelligence
-          </Badge>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Master the Markets with
-            <span className="text-gradient"> AI Precision</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Leverage advanced machine learning algorithms to predict market movements, analyze sentiment, and make data-driven trading decisions with unprecedented accuracy.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/dashboard">
-              <Button size="lg" className="text-lg px-8 py-6 gradient-primary hover:shadow-glow-lg transition-all duration-300 transform hover:scale-105">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
+          <div className="animate-fade-in-up">
+            <Badge className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-xl px-6 py-2 text-lg font-semibold">
+              🚀 AI-Powered Trading Intelligence
+            </Badge>
+            <h1 className="text-5xl sm:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-8 leading-tight">
+              Master the Markets with AI Precision
+            </h1>
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+              Leverage advanced machine learning algorithms to predict market movements, analyze sentiment, and make data-driven trading decisions with unprecedented accuracy.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Link href="/dashboard">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-10 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 font-semibold">
+                  Start Free Trial
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Button variant="outline" size="lg" className="text-lg px-10 py-4 rounded-2xl border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 hover:scale-105 font-semibold">
+                Watch Demo
               </Button>
-            </Link>
+            </div>
           </div>
           <div className="mt-8 flex items-center justify-center space-x-8 text-sm text-muted-foreground">
             <div className="flex items-center space-x-2">
