@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, TrendingUp, DollarSign, BarChart3, Activity, Loader2 } from "lucide-react";
 import StockChart from "@/components/charts/StockChart";
+import LiveStockChart from "@/components/charts/LiveStockChart";
 
 interface StockData {
   symbol: string;
@@ -25,8 +26,12 @@ interface StockData {
   lastUpdated?: string;
 }
 
+// NIFTY 50 Index symbol for yfinance
+const NIFTY50_SYMBOL = "^NSEI";
+const NIFTY50_NAME = "NIFTY 50";
+
 export default function StockAnalysis() {
-  const [symbol, setSymbol] = useState("AAPL");
+  const [symbol, setSymbol] = useState(NIFTY50_SYMBOL);
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +42,8 @@ export default function StockAnalysis() {
     setLoading(true);
     setError(null);
     try {
+      console.log(`[Analysis] Fetching stock data for: ${stockSymbol}`);
+      
       const response = await fetch('/api/searchStocks', {
         method: 'POST',
         headers: {
@@ -45,17 +52,29 @@ export default function StockAnalysis() {
         body: JSON.stringify({ query: stockSymbol }),
       });
       
+      console.log(`[Analysis] Response status: ${response.status}`);
+      
       if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        console.error(`[Analysis] API error: ${response.status} - ${errorText}`);
+        
         if (response.status === 404) {
-          throw new Error('Company not found');
+          throw new Error('Company not found. Please check if the backend is running and the symbol is correct.');
         }
-        throw new Error(`Failed to fetch data: ${response.statusText}`);
+        throw new Error(`Failed to fetch data: ${response.statusText}. ${errorText}`);
       }
       
       const data = await response.json();
+      console.log(`[Analysis] Received data:`, data);
+      
+      if (!data || !data.price) {
+        throw new Error('Invalid data received from API');
+      }
+      
       setStockData(data);
       setLastRefresh(new Date());
     } catch (err) {
+      console.error(`[Analysis] Error fetching stock data:`, err);
       setError(err instanceof Error ? err.message : 'Failed to fetch stock data');
       setStockData(null);
     } finally {
@@ -63,8 +82,10 @@ export default function StockAnalysis() {
     }
   };
 
+  // Preload NIFTY 50 data on mount and update when symbol changes
   useEffect(() => {
     fetchStockData(symbol);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol]);
 
   // Auto-refresh every 30 seconds when enabled
@@ -84,38 +105,61 @@ export default function StockAnalysis() {
     }
   };
 
-  const formatCurrency = (value: number, currency: string = 'USD') => {
-    if (currency === 'INR') {
+  const handleStockClick = (stockName: string) => {
+    setSymbol(stockName);
+    fetchStockData(stockName);
+  };
+
+  const formatCurrency = (value: number, currency: string = 'INR') => {
       return new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: 'INR',
+      currency: currency === 'INR' ? 'INR' : 'USD',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(value);
-    } else {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(value);
-    }
   };
 
   const formatNumber = (value: number) => {
-    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
-    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
-    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    // Indian numbering system: Crores, Lakhs
+    if (value >= 1e7) return `${(value / 1e7).toFixed(2)}Cr`; // Crores
+    if (value >= 1e5) return `${(value / 1e5).toFixed(2)}L`; // Lakhs
     if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
-    return value.toString();
+    return new Intl.NumberFormat('en-IN').format(value);
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Stock Analysis</h1>
-        <p className="text-muted-foreground">Analyze stocks with real-time data and technical indicators</p>
+        <h1 className="text-3xl font-bold tracking-tight">NIFTY 50 Analysis</h1>
+        <p className="text-muted-foreground">Analyze NIFTY 50 index with real-time data and technical indicators</p>
       </div>
+
+      {/* NIFTY 50 Quick Access */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Index Selection</CardTitle>
+          <CardDescription>Analyze NIFTY 50 index or search for other symbols</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={symbol === NIFTY50_SYMBOL ? "default" : "outline"}
+              onClick={() => {
+                setSymbol(NIFTY50_SYMBOL);
+                handleStockClick(NIFTY50_SYMBOL);
+              }}
+              disabled={loading}
+              className={`transition-all ${
+                symbol === NIFTY50_SYMBOL
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "hover:bg-primary/10"
+              }`}
+            >
+              {NIFTY50_NAME}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Search Bar */}
       <Card>
@@ -123,7 +167,7 @@ export default function StockAnalysis() {
           <div className="flex space-x-4">
             <div className="flex-1">
               <Input
-                placeholder="Enter company name or ticker (e.g., Apple, TCS, AAPL, Tesla)"
+                placeholder="Enter symbol (e.g., ^NSEI for NIFTY 50, RELIANCE.NS, TCS.NS)"
                 value={symbol}
                 onChange={(e) => setSymbol(e.target.value)}
                 className="bg-background border-input"
@@ -162,34 +206,52 @@ export default function StockAnalysis() {
 
       {/* Error Display */}
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 dark:bg-red-900/20">
           <CardContent className="pt-6">
-            <p className="text-red-600 text-center">{error}</p>
+            <div className="text-center">
+              <p className="text-red-600 dark:text-red-400 font-semibold mb-2">{error}</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Make sure the backend server is running on http://localhost:8000
+              </p>
+              <Button onClick={() => fetchStockData(symbol)} variant="outline" size="sm">
+                Retry
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {/* Live Price Ticker */}
+      {loading && !stockData && (
+        <Card className="border-2 border-purple-200 bg-purple-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-600 mr-2" />
+              <span className="text-muted-foreground">Loading stock data...</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {stockData && (
-        <Card className="border-2 border-blue-200 bg-blue-50">
+        <Card className="border-2 border-purple-200 bg-purple-50">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Activity className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Activity className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-900">Live Price Updates</h3>
-                  <p className="text-sm text-blue-700">Real-time data from market sources</p>
+                  <h3 className="text-lg font-semibold text-purple-900">Live Price Updates</h3>
+                  <p className="text-sm text-purple-700">Real-time data from market sources</p>
                   {lastRefresh && (
-                    <p className="text-xs text-blue-600 mt-1">
-                      Last updated: {lastRefresh.toLocaleTimeString()}
+                    <p className="text-xs text-purple-600 mt-1">
+                      Last updated: {lastRefresh.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </p>
                   )}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-blue-900">
+                <div className="text-2xl font-bold text-purple-900">
                   {stockData.priceFormatted}
                 </div>
                 <div className={`text-sm font-medium ${
@@ -223,7 +285,7 @@ export default function StockAnalysis() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Market Cap</CardTitle>
-              <BarChart3 className="h-4 w-4 text-blue-600" />
+              <BarChart3 className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{formatNumber(stockData.marketCap)}</div>
@@ -256,7 +318,7 @@ export default function StockAnalysis() {
       )}
 
       {/* Charts and Analysis */}
-      {stockData && (
+      {stockData ? (
         <Tabs defaultValue="chart" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="chart">Chart</TabsTrigger>
@@ -265,9 +327,9 @@ export default function StockAnalysis() {
             <TabsTrigger value="news">News</TabsTrigger>
           </TabsList>
 
-                  <TabsContent value="chart" className="mt-6">
-          <StockChart symbol={stockData.symbol} timeframe="1mo" />
-        </TabsContent>
+          <TabsContent value="chart" className="mt-6">
+            <LiveStockChart symbol={stockData.symbol} />
+          </TabsContent>
 
           <TabsContent value="technical" className="mt-6">
             <Card>
@@ -278,7 +340,7 @@ export default function StockAnalysis() {
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-3">
-                    <h4 className="font-medium text-blue-600">Trend Indicators</h4>
+                    <h4 className="font-medium text-purple-600">Trend Indicators</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">Moving Averages</span>
@@ -290,7 +352,7 @@ export default function StockAnalysis() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">ADX</span>
-                        <Badge variant="outline" className="text-blue-600 border-blue-600">Strong</Badge>
+                        <Badge variant="outline" className="text-purple-600 border-purple-600">Strong</Badge>
                       </div>
                     </div>
                   </div>
@@ -326,7 +388,7 @@ export default function StockAnalysis() {
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-3">
-                    <h4 className="font-medium text-blue-600">Valuation Metrics</h4>
+                    <h4 className="font-medium text-purple-600">Valuation Metrics</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">P/E Ratio</span>
@@ -392,7 +454,18 @@ export default function StockAnalysis() {
             </Card>
           </TabsContent>
         </Tabs>
-      )}
+      ) : error ? (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button onClick={() => fetchStockData(symbol)} variant="outline">
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

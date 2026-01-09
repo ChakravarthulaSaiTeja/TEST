@@ -23,7 +23,8 @@ class TechnicalAnalysisService:
             indicators = {}
 
             # RSI
-            indicators["rsi"] = self._calculate_rsi(close_prices)
+            rsi_series = self._calculate_rsi(close_prices)
+            indicators["rsi"] = float(rsi_series.iloc[-1]) if not rsi_series.empty and not pd.isna(rsi_series.iloc[-1]) else 50.0
 
             # MACD
             macd, signal, histogram = self._calculate_macd(close_prices)
@@ -135,6 +136,29 @@ class TechnicalAnalysisService:
             return williams_r
         except:
             return 0
+
+    def _calculate_sentiment(self, change_percent: float, rsi: float, macd_signal: str) -> float:
+        """
+        Calculate overall sentiment score based on price change, RSI, and MACD signal
+        Returns a score between 0 (Bearish) and 1 (Bullish)
+        """
+        # Base sentiment from price change
+        price_sentiment = 0.5 + (change_percent / 100) * 0.3
+
+        # RSI adjustment
+        if rsi < 30:  # Oversold - bullish signal
+            price_sentiment += 0.1
+        elif rsi > 70:  # Overbought - bearish signal
+            price_sentiment -= 0.1
+
+        # MACD adjustment
+        if macd_signal == "Bullish":
+            price_sentiment += 0.1
+        elif macd_signal == "Bearish":
+            price_sentiment -= 0.1
+
+        # Clamp between 0 and 1
+        return max(0.0, min(1.0, price_sentiment))
 
     def _calculate_cci(
         self, high: pd.Series, low: pd.Series, close: pd.Series, period: int = 20

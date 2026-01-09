@@ -24,7 +24,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   value,
   change = 0,
   changePercent = 0,
-  currency = 'USD',
+  currency = 'INR',
   format = 'currency',
   icon,
   sparkline = [],
@@ -49,25 +49,22 @@ const MetricCard: React.FC<MetricCardProps> = ({
     
     switch (format) {
       case 'currency':
-        return new Intl.NumberFormat(
-          currency === 'INR' ? 'en-IN' : 'en-US',
-          {
+        return new Intl.NumberFormat('en-IN', {
             style: 'currency',
-            currency: currency,
+          currency: currency === 'INR' ? 'INR' : currency === 'EUR' ? 'EUR' : 'USD',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-          }
-        ).format(val);
+        }).format(val);
       
       case 'percentage':
         return `${val.toFixed(2)}%`;
       
       case 'number':
-        if (val >= 1e12) return `${(val / 1e12).toFixed(1)}T`;
-        if (val >= 1e9) return `${(val / 1e9).toFixed(1)}B`;
-        if (val >= 1e6) return `${(val / 1e6).toFixed(1)}M`;
+        // Indian numbering system: Crores, Lakhs
+        if (val >= 1e7) return `${(val / 1e7).toFixed(2)}Cr`; // Crores
+        if (val >= 1e5) return `${(val / 1e5).toFixed(2)}L`; // Lakhs
         if (val >= 1e3) return `${(val / 1e3).toFixed(1)}K`;
-        return val.toString();
+        return new Intl.NumberFormat('en-IN').format(val);
       
       default:
         return val.toString();

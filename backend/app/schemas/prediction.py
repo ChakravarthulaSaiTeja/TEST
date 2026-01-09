@@ -1,5 +1,7 @@
+from datetime import datetime
+from typing import Any, Dict, List
+
 from pydantic import BaseModel
-from typing import Dict, Any, List
 
 
 class PredictionRequest(BaseModel):
@@ -21,3 +23,18 @@ class PredictionResponse(BaseModel):
     confidence_scores: Dict[str, float]
     recommendation: str
     timestamp: str
+
+
+class FeatureAttribution(BaseModel):
+    name: str
+    importance: float
+
+
+class LSTMExplainabilityResponse(BaseModel):
+    symbol: str
+    prediction: float
+    model_output: float
+    base_value: float
+    feature_importances: List[FeatureAttribution]
+    timestamp: datetime
+    model_type: str = "lstm"

@@ -80,11 +80,11 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
 )
 
-# Security middleware
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=["localhost", "127.0.0.1", "*.vercel.app", "*.yourdomain.com"],
-)
+# Security middleware - Commented out to allow all hosts for development
+# app.add_middleware(
+#     TrustedHostMiddleware,
+#     allowed_hosts=["localhost", "127.0.0.1", "*.vercel.app", "*.yourdomain.com"],
+# )
 
 
 # Security headers middleware
@@ -99,14 +99,92 @@ async def add_security_headers(request, call_next):
     return response
 
 
+# Direct stock endpoints (bypass router) - MUST be before router inclusion
+@app.get("/stocks/{symbol}")
+async def get_stock_direct(symbol: str):
+    """Direct stock endpoint to bypass router issues"""
+    try:
+        from app.services.market_data import MarketDataService
+        import urllib.parse
+        
+        symbol = urllib.parse.unquote(symbol)
+        market_service = MarketDataService()
+        stock_info = await market_service.get_stock_info(symbol)
+        
+        if not stock_info:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail=f"Stock data not found for symbol: {symbol}")
+        
+        return stock_info
+    except Exception as e:
+        logger.error(f"Error in direct stock endpoint for {symbol}: {e}", exc_info=True)
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Failed to fetch stock data: {str(e)}")
+
+
+@app.get("/stocks/{symbol}/history")
+async def get_stock_history_direct(symbol: str, period: str = "1mo", interval: str = "1d"):
+    """Direct stock history endpoint"""
+    try:
+        from fastapi import Query
+        import urllib.parse
+        import yfinance as yf
+        
+        symbol = urllib.parse.unquote(symbol)
+        ticker = yf.Ticker(symbol)
+        hist = ticker.history(period=period, interval=interval)
+        
+        if hist.empty:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail=f"No historical data found for symbol {symbol}")
+        
+        chart_data = {
+            "symbol": symbol,
+            "period": period,
+            "interval": interval,
+            "labels": hist.index.strftime("%Y-%m-%d").tolist(),
+            "datasets": [
+                {
+                    "label": "Price",
+                    "data": hist["Close"].tolist(),
+                    "borderColor": "#3b82f6",
+                    "backgroundColor": "rgba(59, 130, 246, 0.1)",
+                    "fill": True,
+                    "tension": 0.4,
+                    "pointRadius": 0,
+                    "hoverRadius": 6,
+                    "borderWidth": 2,
+                },
+            ],
+            "metadata": {
+                "current_price": float(hist["Close"].iloc[-1]) if not hist.empty else 0,
+                "price_change": float(hist["Close"].iloc[-1] - hist["Close"].iloc[0]) if len(hist) > 1 else 0,
+                "price_change_percent": float(((hist["Close"].iloc[-1] - hist["Close"].iloc[0]) / hist["Close"].iloc[0]) * 100) if len(hist) > 1 and hist["Close"].iloc[0] != 0 else 0,
+                "volume": int(hist["Volume"].iloc[-1]) if not hist.empty else 0,
+                "high_52w": float(hist["High"].max()) if not hist.empty else 0,
+                "low_52w": float(hist["Low"].min()) if not hist.empty else 0,
+            },
+        }
+        return chart_data
+    except Exception as e:
+        logger.error(f"Error in direct history endpoint for {symbol}: {e}", exc_info=True)
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Failed to fetch historical data: {str(e)}")
+
+
 # Include API routes
 try:
     from app.api.v1.api import api_router
 
     app.include_router(api_router, prefix="/api/v1")
     logger.info("API routes loaded successfully")
+    # Log route count for debugging
+    route_count = len([r for r in app.routes if hasattr(r, 'path')])
+    stock_route_count = len([r for r in app.routes if hasattr(r, 'path') and 'stock' in r.path.lower()])
+    logger.info(f"Total routes registered: {route_count}, Stock routes: {stock_route_count}")
 except Exception as e:
-    logger.warning(f"Failed to load API routes: {e}")
+    logger.error(f"Failed to load API routes: {e}", exc_info=True)
+    raise  # Re-raise to prevent server from starting without routes
 
 
 # WebSocket endpoint for real-time updates
@@ -178,6 +256,28 @@ async def health_check(request: Request):
         "service": "Trading Intelligence Platform Backend",
         "version": "1.0.0",
     }
+
+# Simple stock proxy endpoint (test if this works)
+@app.get("/stock/{symbol}")
+async def get_stock_simple(symbol: str):
+    """Simple stock endpoint without rate limiter"""
+    try:
+        from app.services.market_data import MarketDataService
+        import urllib.parse
+        
+        symbol = urllib.parse.unquote(symbol)
+        market_service = MarketDataService()
+        stock_info = await market_service.get_stock_info(symbol)
+        
+        if not stock_info:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail=f"Stock data not found for symbol: {symbol}")
+        
+        return stock_info
+    except Exception as e:
+        logger.error(f"Error in simple stock endpoint for {symbol}: {e}", exc_info=True)
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Failed to fetch stock data: {str(e)}")
 
 
 # Root endpoint

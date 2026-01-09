@@ -604,7 +604,7 @@ const ResizableChat: React.FC<ResizableChatProps> = ({ className = '' }) => {
                 ))}
               </div>
               <div className="resizable-chat-message-timestamp">
-                {new Date(message.timestamp).toLocaleTimeString()}
+                {new Date(message.timestamp).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
           ))}

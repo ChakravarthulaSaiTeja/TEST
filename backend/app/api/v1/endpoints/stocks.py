@@ -18,26 +18,38 @@ technical_analysis_service = TechnicalAnalysisService()
 
 
 @router.get("/{symbol}")
-async def get_stock_data(symbol: str) -> StockData:
+async def get_stock_data(symbol: str) -> Dict[str, Any]:
     """Get current stock data for a symbol"""
     try:
+        # URL decode the symbol in case it was encoded (handles ^ and other special chars)
+        import urllib.parse
+        symbol = urllib.parse.unquote(symbol)
+        
         # Try to get from cache first
         cache_key = f"stock_data_{symbol.lower()}"
         cached_data = await cache_manager.get(cache_key)
 
         if cached_data:
-            return StockData(**cached_data)
+            return cached_data
 
         # Fetch fresh data
         stock_info = await market_data_service.get_stock_info(symbol)
+
+        if not stock_info:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Stock data not found for symbol: {symbol}. This could be due to: 1) Market is closed, 2) Network/API issues, 3) Invalid symbol format, or 4) Yahoo Finance API rate limiting. Please check the backend logs for more details."
+            )
 
         # Cache the data
         await cache_manager.set(cache_key, stock_info, expire=60)
 
         return stock_info
 
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error fetching stock data for {symbol}: {e}")
+        logger.error(f"Error fetching stock data for {symbol}: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Failed to fetch stock data: {str(e)}"
         )

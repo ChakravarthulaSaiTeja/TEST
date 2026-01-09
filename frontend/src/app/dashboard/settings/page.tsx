@@ -35,7 +35,7 @@ export default function Settings() {
     email: "john.doe@example.com",
     phone: "+1 (555) 123-4567",
     riskTolerance: "moderate",
-    defaultCurrency: "usd",
+    defaultCurrency: "inr",
     theme: "system",
     fontSize: "medium",
     emailNotifications: true,
@@ -262,6 +262,7 @@ export default function Settings() {
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="inr">INR (₹)</SelectItem>
                 <SelectItem value="usd">USD ($)</SelectItem>
                 <SelectItem value="eur">EUR (€)</SelectItem>
                 <SelectItem value="gbp">GBP (£)</SelectItem>

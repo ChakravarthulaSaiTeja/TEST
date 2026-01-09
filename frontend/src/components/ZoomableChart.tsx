@@ -53,7 +53,7 @@ export default function ZoomableChart() {
     labels: Array.from({ length: 100 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (99 - i));
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' });
     }),
     datasets: [
       {

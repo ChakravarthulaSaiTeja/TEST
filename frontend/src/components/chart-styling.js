@@ -289,24 +289,32 @@ export const ChartLegend = ({ items, className = '' }) => (
   </div>
 );
 
-// Gradient Definitions for SVG
+// Gradient Definitions for SVG - Clean iOS-like Colors
 export const ChartGradients = () => (
   <defs>
     <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor="rgba(0, 200, 255, 0.3)" />
-      <stop offset="100%" stopColor="rgba(0, 200, 255, 0.05)" />
+      <stop offset="0%" stopColor="rgba(88, 86, 214, 0.3)" />
+      <stop offset="100%" stopColor="rgba(88, 86, 214, 0.05)" />
     </linearGradient>
     <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor="#00C8FF" />
-      <stop offset="100%" stopColor="#00E0A4" />
+      <stop offset="0%" stopColor="#5856D6" />
+      <stop offset="100%" stopColor="#4846C6" />
     </linearGradient>
     <linearGradient id="successGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor="#00E676" />
-      <stop offset="100%" stopColor="#00c463" />
+      <stop offset="0%" stopColor="#34C759" />
+      <stop offset="100%" stopColor="#30D158" />
     </linearGradient>
     <linearGradient id="dangerGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor="#FF5252" />
-      <stop offset="100%" stopColor="#e53e3e" />
+      <stop offset="0%" stopColor="#FF3B30" />
+      <stop offset="100%" stopColor="#E53935" />
+    </linearGradient>
+    <linearGradient id="primaryGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#5856D6" />
+      <stop offset="100%" stopColor="#34C759" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#5856D6" />
+      <stop offset="100%" stopColor="#34C759" />
     </linearGradient>
   </defs>
 );

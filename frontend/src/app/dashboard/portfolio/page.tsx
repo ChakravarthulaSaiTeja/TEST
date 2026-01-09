@@ -10,6 +10,11 @@ export default function Portfolio() {
         <p className="text-muted-foreground">
           Manage your investment portfolio and track performance.
         </p>
+        <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+          <p className="text-sm text-purple-800 dark:text-purple-200">
+            <strong>Note:</strong> Currently showing index positions only. Stock positions will be added in the next updates.
+          </p>
+        </div>
       </div>
 
       {/* Portfolio Overview */}
@@ -20,9 +25,9 @@ export default function Portfolio() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$125,430.50</div>
+            <div className="text-2xl font-bold">₹1,25,430.50</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+$2,500</span> from last month
+              <span className="text-green-600">+₹2,50,000</span> from last month
             </p>
           </CardContent>
         </Card>
@@ -33,7 +38,7 @@ export default function Portfolio() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">+$15,430.50</div>
+            <div className="text-2xl font-bold text-green-600">+₹15,43,050</div>
             <p className="text-xs text-muted-foreground">
               +14.1% total return
             </p>
@@ -71,7 +76,7 @@ export default function Portfolio() {
         <CardHeader>
           <CardTitle>Current Positions</CardTitle>
           <CardDescription>
-            Your active investment positions
+            Your active index investment positions
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -79,17 +84,17 @@ export default function Portfolio() {
             {/* Position 1 */}
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center dark:bg-blue-900/50">
-                  <span className="text-lg font-bold text-blue-600">AAPL</span>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center dark:bg-purple-900/50">
+                  <span className="text-lg font-bold text-purple-600">NIFTY</span>
                 </div>
                 <div>
-                  <p className="font-medium">Apple Inc.</p>
-                  <p className="text-sm text-muted-foreground">100 shares @ $175.43</p>
+                  <p className="font-medium">NIFTY 50</p>
+                  <p className="text-sm text-muted-foreground">10 units @ ₹23,200</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-medium">$17,543.00</p>
-                <p className="text-sm text-green-600">+$2,457.00 (+16.3%)</p>
+                <p className="font-medium">₹2,32,000</p>
+                <p className="text-sm text-green-600">+₹12,800 (+5.8%)</p>
               </div>
             </div>
 
@@ -97,16 +102,16 @@ export default function Portfolio() {
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center dark:bg-green-900/50">
-                  <span className="text-lg font-bold text-green-600">TSLA</span>
+                  <span className="text-lg font-bold text-green-600">SENSEX</span>
                 </div>
                 <div>
-                  <p className="font-medium">Tesla, Inc.</p>
-                  <p className="text-sm text-muted-foreground">50 shares @ $245.67</p>
+                  <p className="font-medium">SENSEX</p>
+                  <p className="text-sm text-muted-foreground">5 units @ ₹72,500</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-medium">$12,283.50</p>
-                <p className="text-sm text-green-600">+$1,716.50 (+16.2%)</p>
+                <p className="font-medium">₹3,62,500</p>
+                <p className="text-sm text-green-600">+₹8,750 (+2.5%)</p>
               </div>
             </div>
 
@@ -114,16 +119,16 @@ export default function Portfolio() {
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center dark:bg-purple-900/50">
-                  <span className="text-lg font-bold text-purple-600">NVDA</span>
+                  <span className="text-lg font-bold text-purple-600">BANK</span>
                 </div>
                 <div>
-                  <p className="font-medium">NVIDIA Corporation</p>
-                  <p className="text-sm text-muted-foreground">75 shares @ $456.78</p>
+                  <p className="font-medium">NIFTY BANK</p>
+                  <p className="text-sm text-muted-foreground">8 units @ ₹48,500</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-medium">$34,258.50</p>
-                <p className="text-sm text-green-600">+$8,551.70 (+33.3%)</p>
+                <p className="font-medium">₹3,88,000</p>
+                <p className="text-sm text-green-600">+₹19,400 (+5.3%)</p>
               </div>
             </div>
           </div>

@@ -68,7 +68,7 @@ interface StockChartProps {
   className?: string;
 }
 
-export default function StockChart({ symbol = "AAPL", timeframe = "1mo", className }: StockChartProps) {
+export default function StockChart({ symbol = "NIFTY 50", timeframe = "1mo", className }: StockChartProps) {
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -139,7 +139,7 @@ export default function StockChart({ symbol = "AAPL", timeframe = "1mo", classNa
           title: (ctx: TooltipItem<'line'>[]) => `Date: ${ctx[0]?.label}`,
           label: (ctx: TooltipItem<'line'>) => {
             const value = ctx.parsed.y;
-            const currency = symbol.includes('.NS') || symbol.includes('.BO') ? '₹' : '$';
+            const currency = '₹'; // Default to INR for Indian standards
             return `${ctx.dataset.label}: ${currency}${value.toFixed(2)}`;
           },
         },
@@ -192,7 +192,7 @@ export default function StockChart({ symbol = "AAPL", timeframe = "1mo", classNa
         ticks: {
           color: "#9ca3af",
           callback: (val: string | number) => {
-            const currency = symbol.includes('.NS') || symbol.includes('.BO') ? '₹' : '$';
+            const currency = '₹'; // Default to INR for Indian standards
             return `${currency}${Number(val).toFixed(2)}`;
           },
         },
@@ -296,7 +296,7 @@ export default function StockChart({ symbol = "AAPL", timeframe = "1mo", classNa
               Real-time stock price visualization
               {chartData.metadata && (
                 <span className="ml-2">
-                  • Current: {symbol.includes('.NS') || symbol.includes('.BO') ? '₹' : '$'}{chartData.metadata.current_price.toFixed(2)}
+                  • Current: ₹{chartData.metadata.current_price.toFixed(2)}
                   {chartData.metadata.price_change_percent !== 0 && (
                     <span className={`ml-1 ${chartData.metadata.price_change_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       ({chartData.metadata.price_change_percent >= 0 ? '+' : ''}{chartData.metadata.price_change_percent.toFixed(2)}%)

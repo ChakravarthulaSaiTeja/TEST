@@ -52,13 +52,13 @@ export default function Billing() {
     const percentage = getUsagePercentage(current, limit);
     if (percentage >= 90) return "bg-red-500";
     if (percentage >= 75) return "bg-yellow-500";
-    return "bg-blue-500";
+    return "bg-purple-500";
   };
 
   const plans = [
     {
       name: "Free",
-      price: "$0",
+      price: "₹0",
       period: "month",
       description: "Perfect for getting started",
       features: [
@@ -72,7 +72,7 @@ export default function Billing() {
     },
     {
       name: "Pro",
-      price: "$29",
+      price: "₹2,900",
       period: "month",
       description: "For active traders and investors",
       features: [
@@ -88,7 +88,7 @@ export default function Billing() {
     },
     {
       name: "Enterprise",
-      price: "$99",
+      price: "₹9,900",
       period: "month",
       description: "For professional teams and institutions",
       features: [
@@ -157,12 +157,12 @@ export default function Billing() {
         <CardContent>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Star className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Star className="h-6 w-6 text-purple-600" />
               </div>
               <div>
                 <h3 className="text-xl font-semibold">Free Plan</h3>
-                <p className="text-muted-foreground">$0/month</p>
+                <p className="text-muted-foreground">₹0/month</p>
               </div>
             </div>
             <Button>
@@ -268,10 +268,10 @@ export default function Billing() {
         <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
         <div className="grid gap-6 md:grid-cols-3">
           {plans.map((plan) => (
-            <Card key={plan.name} className={`relative ${plan.popular ? 'border-2 border-blue-500' : ''}`}>
+            <Card key={plan.name} className={`relative ${plan.popular ? 'border-2 border-purple-500' : ''}`}>
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-blue-500 text-white px-3 py-1">
+                  <Badge className="bg-purple-500 text-white px-3 py-1">
                     <Crown className="mr-1 h-3 w-3" />
                     Most Popular
                   </Badge>

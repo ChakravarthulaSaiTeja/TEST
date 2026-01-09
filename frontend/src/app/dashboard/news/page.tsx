@@ -44,7 +44,8 @@ export default function News() {
       setError(null);
       
       const queryParams = params ? new URLSearchParams(params).toString() : "";
-      const url = `http://localhost:8000/api/v1/news/${endpoint}${queryParams ? `?${queryParams}` : ""}`;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const url = `${apiUrl}/api/v1/news/${endpoint}${queryParams ? `?${queryParams}` : ""}`;
       
       const response = await fetch(url);
       if (!response.ok) {

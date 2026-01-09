@@ -83,7 +83,7 @@ export default function Dashboard() {
           <Link href="/chat">
             <Button className="flex items-center space-x-2">
               <MessageCircle className="h-4 w-4" />
-              <span>Chat with AI Trader</span>
+              <span>AI Chatbot</span>
             </Button>
           </Link>
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -102,15 +102,15 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${totalPortfolioValue.toLocaleString()}
+              ₹{totalPortfolioValue.toLocaleString('en-IN')}
             </div>
             <p className="text-xs text-muted-foreground">
               {balance ? (
                 <span className={balance.totalValue > 100000 ? "text-green-600" : "text-red-600"}>
-                  {balance.totalValue > 100000 ? "+" : ""}${(balance.totalValue - 100000).toLocaleString()}
+                  {balance.totalValue > 100000 ? "+" : ""}₹{(balance.totalValue - 100000).toLocaleString('en-IN')}
                 </span>
               ) : (
-                <span className="text-green-600">+$2,500</span>
+                <span className="text-green-600">+₹2,50,000</span>
               )} from initial
             </p>
           </CardContent>
@@ -123,7 +123,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${todayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {todayChange >= 0 ? '+' : ''}${todayChange.toLocaleString()}
+              {todayChange >= 0 ? '+' : ''}₹{todayChange.toLocaleString('en-IN')}
             </div>
             <p className="text-xs text-muted-foreground">
               {((todayChange / totalPortfolioValue) * 100).toFixed(2)}% from yesterday
@@ -147,7 +147,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">AI Predictions</CardTitle>
-            <Brain className="h-4 w-4 text-blue-600" />
+            <Brain className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">85%</div>
@@ -188,10 +188,10 @@ export default function Dashboard() {
                     <tr key={index} className="border-b">
                       <td className="p-2 font-medium">{position.symbol}</td>
                       <td className="p-2 text-right">{position.qty}</td>
-                      <td className="p-2 text-right">${position.avgPrice.toFixed(2)}</td>
-                      <td className="p-2 text-right">${position.marketValue.toFixed(2)}</td>
+                      <td className="p-2 text-right">₹{position.avgPrice.toFixed(2)}</td>
+                      <td className="p-2 text-right">₹{position.marketValue.toFixed(2)}</td>
                       <td className={`p-2 text-right ${position.unrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        ${position.unrealizedPnL.toFixed(2)}
+                        ₹{position.unrealizedPnL.toFixed(2)}
                       </td>
                       <td className={`p-2 text-right ${position.unrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {((position.unrealizedPnL / (position.avgPrice * position.qty)) * 100).toFixed(2)}%
@@ -209,9 +209,9 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>AI Trading Assistant</CardTitle>
+            <CardTitle>AI Chatbot</CardTitle>
             <CardDescription>
-              Chat with Forecaster AI for analysis and trading
+              Chat with AI Chatbot for analysis and trading
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -230,7 +230,7 @@ export default function Dashboard() {
             <Link href="/chat?mode=analysis">
               <Button className="w-full justify-start" variant="outline">
                 <BarChart3 className="mr-2 h-4 w-4" />
-                Get Stock Analysis
+                Get Index Analysis
               </Button>
             </Link>
           </CardContent>
@@ -240,28 +240,28 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Market Overview</CardTitle>
             <CardDescription>
-              Key market indicators
+              Key Indian market indices
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm">S&P 500</span>
+              <span className="text-sm">NIFTY 50</span>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">4,567.89</span>
+                <span className="text-sm font-medium">23,200</span>
                 <Badge variant="secondary" className="text-green-600">+0.8%</Badge>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm">NASDAQ</span>
+              <span className="text-sm">SENSEX</span>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">14,234.56</span>
+                <span className="text-sm font-medium">72,500</span>
                 <Badge variant="secondary" className="text-green-600">+1.2%</Badge>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm">DOW</span>
+              <span className="text-sm">NIFTY BANK</span>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">34,567.89</span>
+                <span className="text-sm font-medium">48,500</span>
                 <Badge variant="secondary" className="text-red-600">-0.3%</Badge>
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function Dashboard() {
                 <TrendingUp className="h-4 w-4 text-green-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Bought AAPL</p>
+                <p className="text-sm font-medium">Bought NIFTY 50</p>
                 <p className="text-xs text-muted-foreground">2 hours ago</p>
               </div>
             </div>
@@ -290,13 +290,13 @@ export default function Dashboard() {
                 <TrendingDown className="h-4 w-4 text-red-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Sold TSLA</p>
+                <p className="text-sm font-medium">Sold NIFTY BANK</p>
                 <p className="text-xs text-muted-foreground">5 hours ago</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg dark:bg-blue-900/50">
-                <Activity className="h-4 w-4 text-blue-600" />
+              <div className="p-2 bg-purple-100 rounded-lg dark:bg-purple-900/50">
+                <Activity className="h-4 w-4 text-purple-600" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium">AI Prediction</p>

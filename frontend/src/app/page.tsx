@@ -129,7 +129,11 @@ export default function Home() {
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => navigator.clipboard.writeText('demo@forecaster.ai')}
+                      onClick={() => {
+                        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                          navigator.clipboard.writeText('demo@forecaster.ai');
+                        }
+                      }}
                       className="ml-2"
                     >
                       <Copy className="h-4 w-4" />
@@ -149,7 +153,11 @@ export default function Home() {
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => navigator.clipboard.writeText('Demo123!')}
+                      onClick={() => {
+                        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                          navigator.clipboard.writeText('Demo123!');
+                        }
+                      }}
                       className="ml-2"
                     >
                       <Copy className="h-4 w-4" />

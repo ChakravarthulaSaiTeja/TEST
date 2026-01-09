@@ -17,7 +17,7 @@ export default function NotificationsPage() {
       id: 1,
       type: "alert",
       title: "Price Alert: AAPL",
-      message: "Apple Inc. has reached your target price of $150.00",
+      message: "Apple Inc. has reached your target price of ₹150.00",
       time: "2 minutes ago",
       read: false,
       priority: "high"

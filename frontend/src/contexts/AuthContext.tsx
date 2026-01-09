@@ -57,6 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        // Add timeout and signal to prevent hanging
+        signal: AbortSignal.timeout(5000),
       });
       
       if (response.ok) {
@@ -67,7 +69,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Token is invalid, clear auth data
         logout();
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Silently handle network errors (backend might be down)
+      if (error.name === 'AbortError' || error.message?.includes('fetch')) {
+        console.warn('Backend unavailable, using cached user data');
+        // Don't logout if it's just a network error
+        return;
+      }
       console.error('Token verification failed:', error);
       logout();
     }
@@ -75,6 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check if user is logged in on app load
+    // Only run on client side
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+    
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
     
@@ -82,8 +96,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
-        // Verify token is still valid
-        verifyToken(storedToken);
+        // Verify token is still valid (non-blocking)
+        verifyToken(storedToken).catch(() => {
+          // Silently handle verification errors
+        });
       } catch (error) {
         console.error('Error parsing stored auth data:', error);
         localStorage.removeItem('token');

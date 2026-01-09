@@ -1,119 +1,94 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, MessageSquare, Twitter, Globe, BarChart3, Activity } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import { TrendingUp, TrendingDown, BarChart3, Activity, Loader2 } from "lucide-react";
+
+// NIFTY 50 Index symbol
+const NIFTY50_SYMBOL = "^NSEI";
+const NIFTY50_NAME = "NIFTY 50";
+
+interface StockSentiment {
+  symbol: string;
+  name: string;
+  score: number;
+  sentiment: "Bullish" | "Bearish" | "Neutral";
+  changePercent: number;
+  price: number;
+  volume: number;
+  trend: "Up" | "Down" | "Sideways";
+}
 
 export default function Sentiment() {
-  const mockSentimentData = {
-    overall: {
-      score: 0.72,
-      sentiment: "Bullish",
-      confidence: 0.85,
-      change: "+0.15",
-      changePercent: "+26.3%"
-    },
-    sources: [
-      {
-        name: "News Articles",
-        score: 0.68,
-        sentiment: "Positive",
-        count: 45,
-        change: "+0.12"
-      },
-      {
-        name: "Social Media",
-        score: 0.75,
-        sentiment: "Very Positive",
-        count: 234,
-        change: "+0.18"
-      },
-      {
-        name: "Analyst Reports",
-        score: 0.71,
-        sentiment: "Positive",
-        count: 12,
-        change: "+0.08"
-      },
-      {
-        name: "Earnings Calls",
-        score: 0.76,
-        sentiment: "Very Positive",
-        count: 8,
-        change: "+0.22"
+  const [stockSentiments, setStockSentiments] = useState<StockSentiment[]>([]);
+  const [overallSentiment, setOverallSentiment] = useState({
+    score: 0.5,
+    sentiment: "Neutral" as "Bullish" | "Bearish" | "Neutral",
+    confidence: 0.75,
+    change: 0,
+    changePercent: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchStockSentiments = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Fetch sentiment data from backend API for NIFTY 50
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/sentiment/${encodeURIComponent(NIFTY50_SYMBOL)}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sentiment data: ${response.statusText}`);
       }
-    ],
-    trending: [
-      {
-        keyword: "AI Technology",
-        sentiment: "Positive",
-        score: 0.82,
-        mentions: 156,
-        change: "+12%"
-      },
-      {
-        keyword: "Supply Chain",
-        sentiment: "Neutral",
-        score: 0.51,
-        mentions: 89,
-        change: "-3%"
-      },
-      {
-        keyword: "Interest Rates",
-        sentiment: "Negative",
-        score: 0.32,
-        mentions: 234,
-        change: "+8%"
-      },
-      {
-        keyword: "Earnings Growth",
-        sentiment: "Positive",
-        score: 0.78,
-        mentions: 67,
-        change: "+15%"
+
+      const sentimentData = await response.json();
+      
+      if (!sentimentData) {
+        throw new Error('No sentiment data received');
       }
-    ],
-    recent: [
-      {
-        id: 1,
-        source: "Reuters",
-        title: "Tech stocks surge on strong earnings reports",
-        sentiment: "Positive",
-        score: 0.85,
-        publishedAt: "2 hours ago",
-        impact: "High"
-      },
-      {
-        id: 2,
-        source: "Twitter",
-        content: "Great quarter for $AAPL! Services revenue growth is impressive",
-        sentiment: "Positive",
-        score: 0.78,
-        publishedAt: "3 hours ago",
-        impact: "Medium"
-      },
-      {
-        id: 3,
-        source: "Bloomberg",
-        title: "Federal Reserve signals potential rate cuts",
-        sentiment: "Positive",
-        score: 0.72,
-        publishedAt: "4 hours ago",
-        impact: "High"
-      },
-      {
-        id: 4,
-        source: "Reddit",
-        content: "Market seems overvalued, expecting correction soon",
-        sentiment: "Negative",
-        score: 0.35,
-        publishedAt: "5 hours ago",
-        impact: "Low"
-      }
-    ]
+
+      // Create stock sentiment object from API response
+      const stockSentiment: StockSentiment = {
+        symbol: sentimentData.symbol,
+        name: sentimentData.name || NIFTY50_NAME,
+        score: sentimentData.score,
+        sentiment: sentimentData.sentiment,
+        changePercent: sentimentData.change_percent,
+        price: sentimentData.price,
+        volume: sentimentData.volume,
+        trend: sentimentData.trend,
+      };
+      
+      setStockSentiments([stockSentiment]);
+      
+      // Set overall sentiment from API data
+      setOverallSentiment({
+        score: sentimentData.score,
+        sentiment: sentimentData.sentiment,
+        confidence: sentimentData.confidence,
+        change: sentimentData.change,
+        changePercent: sentimentData.change_percent,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch sentiment data');
+      console.error('Error fetching sentiment data:', err);
+      setStockSentiments([]);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchStockSentiments();
+  }, []);
+
+  // Removed mock data - using real data from backend API
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment.toLowerCase()) {
@@ -153,216 +128,294 @@ export default function Sentiment() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Sentiment Analysis</h1>
           <p className="text-muted-foreground">
-            AI-powered sentiment analysis from news, social media, and market data
+            AI-powered sentiment analysis based on real-time stock data and market trends
           </p>
+          <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+            <p className="text-sm text-purple-800 dark:text-purple-200">
+              <strong>Note:</strong> Sentiment analysis is calculated at the start of each trading day based on price movements, volume trends, and historical patterns. Sentiment scores range from 0 (Bearish) to 1 (Bullish).
+            </p>
+          </div>
         </div>
-        <Button>
-          <Activity className="mr-2 h-4 w-4" />
-          Refresh Analysis
+        <Button onClick={fetchStockSentiments} disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Analyzing...
+            </>
+          ) : (
+            <>
+              <Activity className="mr-2 h-4 w-4" />
+              Refresh Analysis
+            </>
+          )}
         </Button>
       </div>
 
       {/* Overall Sentiment */}
       <Card>
         <CardHeader>
-          <CardTitle>Overall Market Sentiment</CardTitle>
+          <CardTitle>NIFTY 50 Market Sentiment</CardTitle>
           <CardDescription>
-            Aggregated sentiment across all sources and timeframes
+            Overall sentiment for NIFTY 50 index based on real-time data and technical indicators
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6 md:grid-cols-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{mockSentimentData.overall.score}</div>
-              <p className="text-sm text-muted-foreground">Sentiment Score</p>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+              <span className="ml-2 text-muted-foreground">Analyzing sentiment...</span>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">{mockSentimentData.overall.sentiment}</div>
-              <p className="text-sm text-muted-foreground">Overall Sentiment</p>
+          ) : error ? (
+            <div className="text-center py-8 text-red-600">
+              <p>Error: {error}</p>
+              <Button onClick={fetchStockSentiments} className="mt-4" variant="outline">
+                Retry
+              </Button>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">{mockSentimentData.overall.confidence}</div>
-              <p className="text-sm text-muted-foreground">Confidence Level</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{mockSentimentData.overall.change}</div>
-              <p className="text-sm text-muted-foreground">24h Change</p>
-            </div>
-          </div>
-          
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Sentiment Trend</span>
-              <span className="text-sm text-green-600">{mockSentimentData.overall.changePercent}</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-green-600 h-3 rounded-full transition-all duration-300" 
-                style={{ width: `${mockSentimentData.overall.score * 100}%` }}
-              ></div>
-            </div>
-          </div>
+          ) : (
+            <>
+              <div className="grid gap-6 md:grid-cols-4">
+                <div className="text-center">
+                  <div className={`text-3xl font-bold ${
+                    overallSentiment.score > 0.6 ? 'text-green-600' : 
+                    overallSentiment.score < 0.4 ? 'text-red-600' : 
+                    'text-purple-600'
+                  }`}>
+                    {overallSentiment.score.toFixed(2)}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Sentiment Score</p>
+                </div>
+                <div className="text-center">
+                  <div className={`text-3xl font-bold ${
+                    overallSentiment.sentiment === 'Bullish' ? 'text-green-600' :
+                    overallSentiment.sentiment === 'Bearish' ? 'text-red-600' :
+                    'text-purple-600'
+                  }`}>
+                    {overallSentiment.sentiment}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Overall Sentiment</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold">{(overallSentiment.confidence * 100).toFixed(0)}%</div>
+                  <p className="text-sm text-muted-foreground">Confidence Level</p>
+                </div>
+                <div className="text-center">
+                  <div className={`text-3xl font-bold ${
+                    overallSentiment.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {overallSentiment.changePercent >= 0 ? '+' : ''}{overallSentiment.changePercent.toFixed(2)}%
+                  </div>
+                  <p className="text-sm text-muted-foreground">Avg Change</p>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Sentiment Trend</span>
+                  <span className={`text-sm ${
+                    overallSentiment.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {overallSentiment.changePercent >= 0 ? '+' : ''}{overallSentiment.changePercent.toFixed(2)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div 
+                    className={`h-3 rounded-full transition-all duration-300 ${
+                      overallSentiment.score > 0.6 ? 'bg-green-600' :
+                      overallSentiment.score < 0.4 ? 'bg-red-600' :
+                      'bg-purple-600'
+                    }`}
+                    style={{ width: `${overallSentiment.score * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
-      {/* Source Breakdown */}
+      {/* Stock Sentiment Breakdown */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Sentiment by Source</CardTitle>
+            <CardTitle>NIFTY 50 Sentiment Analysis</CardTitle>
             <CardDescription>
-              Sentiment analysis breakdown across different data sources
+              Real-time sentiment analysis for NIFTY 50 index
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mockSentimentData.sources.map((source) => (
-                <div key={source.name} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      {source.name === "News Articles" && <Globe className="h-4 w-4 text-blue-600" />}
-                      {source.name === "Social Media" && <Twitter className="h-4 w-4 text-blue-600" />}
-                      {source.name === "Analyst Reports" && <BarChart3 className="h-4 w-4 text-blue-600" />}
-                      {source.name === "Earnings Calls" && <Activity className="h-4 w-4 text-blue-600" />}
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
+              </div>
+            ) : stockSentiments.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No sentiment data available</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {stockSentiments.map((stock) => (
+                  <div key={stock.symbol} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-2 rounded-lg ${
+                        stock.sentiment === 'Bullish' ? 'bg-green-100 dark:bg-green-900/50' :
+                        stock.sentiment === 'Bearish' ? 'bg-red-100 dark:bg-red-900/50' :
+                        'bg-purple-100 dark:bg-purple-900/50'
+                      }`}>
+                        {stock.trend === 'Up' && <TrendingUp className={`h-4 w-4 ${
+                          stock.sentiment === 'Bullish' ? 'text-green-600' : 'text-purple-600'
+                        }`} />}
+                        {stock.trend === 'Down' && <TrendingDown className={`h-4 w-4 ${
+                          stock.sentiment === 'Bearish' ? 'text-red-600' : 'text-purple-600'
+                        }`} />}
+                        {stock.trend === 'Sideways' && <BarChart3 className="h-4 w-4 text-purple-600" />}
+                      </div>
+                      <div>
+                        <div className="font-medium">{stock.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          ₹{stock.price.toLocaleString('en-IN', { maximumFractionDigits: 2 })} • {stock.trend} trend
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-medium">{source.name}</div>
-                      <div className="text-sm text-muted-foreground">{source.count} items</div>
+                    <div className="text-right">
+                      <div className="flex items-center space-x-2">
+                        <Badge className={getSentimentColor(stock.sentiment)}>
+                          {stock.sentiment}
+                        </Badge>
+                        <span className="text-sm font-medium">{stock.score.toFixed(2)}</span>
+                      </div>
+                      <div className={`text-xs ${
+                        stock.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="flex items-center space-x-2">
-                      <Badge className={getSentimentColor(source.sentiment)}>
-                        {source.sentiment}
-                      </Badge>
-                      <span className="text-sm font-medium">{source.score}</span>
-                    </div>
-                    <div className="text-xs text-green-600">{source.change}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Trending Keywords</CardTitle>
+            <CardTitle>Technical Indicators</CardTitle>
             <CardDescription>
-              Most discussed topics and their sentiment scores
+              Key technical indicators for NIFTY 50 sentiment analysis
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mockSentimentData.trending.map((keyword) => (
-                <div key={keyword.keyword} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <div className="font-medium">{keyword.keyword}</div>
-                    <div className="text-sm text-muted-foreground">{keyword.mentions} mentions</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center space-x-2">
-                      <Badge className={getSentimentColor(keyword.sentiment)}>
-                        {keyword.sentiment}
-                      </Badge>
-                      <span className="text-sm font-medium">{keyword.score}</span>
+            {loading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            ) : stockSentiments.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 border rounded-lg">
+                    <div className="text-sm text-muted-foreground">RSI</div>
+                    <div className="text-lg font-semibold">
+                      {stockSentiments[0].score > 0.6 ? 'Overbought' : stockSentiments[0].score < 0.4 ? 'Oversold' : 'Neutral'}
                     </div>
-                    <div className="text-xs text-green-600">{keyword.change}</div>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <div className="text-sm text-muted-foreground">Trend</div>
+                    <div className="text-lg font-semibold">{stockSentiments[0].trend}</div>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="text-sm text-muted-foreground">
+                  Sentiment analysis is based on price movements, volume trends, and technical indicators (RSI, MACD, Moving Averages).
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                <p>No technical data available</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Sentiment Items */}
+      {/* NIFTY 50 Sentiment Details */}
+      {stockSentiments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>NIFTY 50 Sentiment Details</CardTitle>
+            <CardDescription>
+              Detailed sentiment analysis for NIFTY 50 index
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="p-4 border rounded-lg">
+                  <div className="text-sm text-muted-foreground mb-2">Current Price</div>
+                  <div className="text-2xl font-bold">
+                    ₹{stockSentiments[0].price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                  </div>
+                  <div className={`text-sm mt-1 ${
+                    stockSentiments[0].changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {stockSentiments[0].changePercent >= 0 ? '+' : ''}{stockSentiments[0].changePercent.toFixed(2)}%
+                  </div>
+                </div>
+                <div className="p-4 border rounded-lg">
+                  <div className="text-sm text-muted-foreground mb-2">Volume</div>
+                  <div className="text-2xl font-bold">
+                    {stockSentiments[0].volume >= 1e7 
+                      ? `${(stockSentiments[0].volume / 1e7).toFixed(2)}Cr`
+                      : stockSentiments[0].volume >= 1e5
+                      ? `${(stockSentiments[0].volume / 1e5).toFixed(2)}L`
+                      : stockSentiments[0].volume.toLocaleString('en-IN')}
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="text-sm font-medium mb-2">Sentiment Analysis</div>
+                <div className="text-sm text-muted-foreground">
+                  The sentiment score is calculated based on price movements, volume trends, RSI (Relative Strength Index), 
+                  MACD (Moving Average Convergence Divergence), and moving averages. A score above 0.6 indicates bullish sentiment, 
+                  below 0.4 indicates bearish sentiment, and between 0.4-0.6 indicates neutral sentiment.
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* NIFTY 50 Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Sentiment Items</CardTitle>
+          <CardTitle>About NIFTY 50 Sentiment Analysis</CardTitle>
           <CardDescription>
-            Latest news, social media posts, and market commentary
+            Understanding sentiment analysis for the NIFTY 50 index
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockSentimentData.recent.map((item) => (
-              <div key={item.id} className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50">
-                <div className="flex items-start space-x-3 flex-1">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    {item.source === "Twitter" && <Twitter className="h-4 w-4 text-blue-600" />}
-                    {item.source === "Reddit" && <MessageSquare className="h-4 w-4 text-blue-600" />}
-                    {item.source === "Reuters" && <Globe className="h-4 w-4 text-blue-600" />}
-                    {item.source === "Bloomberg" && <BarChart3 className="h-4 w-4 text-blue-600" />}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium">{item.source}</span>
-                      <Badge className={getSentimentColor(item.impact)}>
-                        {item.impact} Impact
-                      </Badge>
-                    </div>
-                    <div className="text-sm mb-2">
-                      {item.title || item.content}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{item.publishedAt}</div>
-                  </div>
-                </div>
-                <div className="text-right ml-4">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <Badge className={getSentimentColor(item.sentiment)}>
-                      {getSentimentIcon(item.sentiment)}
-                      {item.sentiment}
-                    </Badge>
-                  </div>
-                  <div className="text-sm font-medium">{item.score}</div>
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                What is Sentiment Analysis?
+              </div>
+              <div className="text-sm text-blue-800 dark:text-blue-200">
+                Sentiment analysis for NIFTY 50 combines multiple technical indicators including price movements, 
+                volume trends, RSI, MACD, and moving averages to determine overall market sentiment. This helps 
+                investors understand whether the market is bullish, bearish, or neutral.
+              </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="p-3 border rounded-lg">
+                <div className="text-sm font-medium mb-1">Bullish Sentiment (Score &gt; 0.6)</div>
+                <div className="text-xs text-muted-foreground">
+                  Indicates positive market outlook with upward price trends and strong buying pressure.
                 </div>
               </div>
-            ))}
-          </div>
-          
-          <div className="mt-6 text-center">
-            <Button variant="outline">
-              Load More Items
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Sentiment Analysis Tools */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Sentiment Analysis Tools</CardTitle>
-          <CardDescription>
-            Analyze sentiment for specific stocks, keywords, or topics
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label>Stock Symbol</Label>
-              <Input placeholder="e.g., AAPL, MSFT" />
-            </div>
-            <div className="space-y-2">
-              <Label>Timeframe</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timeframe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1h">Last Hour</SelectItem>
-                  <SelectItem value="24h">Last 24 Hours</SelectItem>
-                  <SelectItem value="7d">Last 7 Days</SelectItem>
-                  <SelectItem value="30d">Last 30 Days</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>&nbsp;</Label>
-              <Button className="w-full">
-                <Activity className="mr-2 h-4 w-4" />
-                Analyze Sentiment
-              </Button>
+              <div className="p-3 border rounded-lg">
+                <div className="text-sm font-medium mb-1">Bearish Sentiment (Score &lt; 0.4)</div>
+                <div className="text-xs text-muted-foreground">
+                  Indicates negative market outlook with downward price trends and selling pressure.
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

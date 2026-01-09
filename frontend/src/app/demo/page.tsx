@@ -61,7 +61,7 @@ const DemoPage = () => {
       value: 125430.50,
       change: 2340.25,
       changePercent: 1.89,
-      currency: 'USD' as const,
+      currency: 'INR' as const,
       icon: <DollarSign className="h-5 w-5" />,
       sparkline: [100, 105, 102, 108, 115, 120, 118, 125, 130, 128, 132, 135]
     },
@@ -70,7 +70,7 @@ const DemoPage = () => {
       value: 2340.25,
       change: 2340.25,
       changePercent: 1.89,
-      currency: 'USD' as const,
+      currency: 'INR' as const,
       icon: <TrendingUp className="h-5 w-5" />,
       sparkline: [0, 5, 2, 8, 15, 20, 18, 25, 30, 28, 32, 35]
     },

@@ -84,7 +84,7 @@ export default function Sidebar() {
             className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300",
               item.current
-                ? "gradient-primary text-white shadow-glow"
+                ? "bg-primary text-white shadow-glow font-semibold"
                 : "text-muted-foreground hover:bg-primary/10 hover:text-primary hover:shadow-sm"
             )}
           >
