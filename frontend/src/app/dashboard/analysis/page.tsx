@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, TrendingUp, DollarSign, BarChart3, Activity, Loader2 } from "lucide-react";
-import StockChart from "@/components/charts/StockChart";
 import LiveStockChart from "@/components/charts/LiveStockChart";
+
+const StockChart = dynamic(() => import("@/components/charts/StockChart"), {
+  ssr: false,
+});
 
 interface StockData {
   symbol: string;

@@ -27,7 +27,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [showSuggestionsList, setShowSuggestionsList] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Debounce the search query
   useEffect(() => {

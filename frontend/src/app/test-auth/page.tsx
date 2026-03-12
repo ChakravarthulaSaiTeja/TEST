@@ -19,7 +19,9 @@ function TestAuthContent() {
             <p className="mb-4">✅ You are signed in!</p>
             <p className="mb-2"><strong>Email:</strong> {session.user?.email}</p>
             <p className="mb-2"><strong>Name:</strong> {session.user?.name}</p>
-            <p className="mb-4"><strong>ID:</strong> {(session.user as any)?.id}</p>
+            <p className="mb-4">
+              <strong>ID:</strong> {(session.user as { id?: string })?.id}
+            </p>
             
             <div className="space-x-4">
               <Button onClick={() => signOut()}>Sign Out</Button>

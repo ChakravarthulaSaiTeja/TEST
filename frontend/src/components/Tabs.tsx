@@ -111,7 +111,9 @@ const Tabs: React.FC<TabsProps> = ({
           return (
             <button
               key={item.id}
-              ref={(el) => (tabRefs.current[index] = el)}
+              ref={(el) => {
+                tabRefs.current[index] = el;
+              }}
               onClick={() => !isDisabled && onTabChange(item.id)}
               disabled={isDisabled}
               className={getTabClasses(item, isActive)}
